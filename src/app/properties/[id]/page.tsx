@@ -75,7 +75,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
 
             {/* Right Column: Sticky Sidebar */}
             <div className="lg:col-span-4">
-              <PropertySidebar />
+              <PropertySidebar propertyTitle={propertyTitle} />
             </div>
           </div>
         </section>

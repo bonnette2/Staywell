@@ -23,6 +23,17 @@ body {
   font-family: var(--font-sans);
 }
 
-
-
-
+/* Messages scrollbar */
+.messages-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.messages-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.messages-scrollbar::-webkit-scrollbar-thumb {
+  background: #e4e4e7;
+  border-radius: 99px;
+}
+.messages-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #d4d4d8;
+}

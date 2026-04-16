@@ -1,17 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Phone, MapPin, Mail, Calendar } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { useAuth } from "@/context/AuthContext";
 import { useParams } from "next/navigation";
 
-export default function PropertySidebar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulated state
+import { validateName, validateEmail, validatePhone, sanitizeInput } from "@/utils/validation";
+
+interface PropertySidebarProps {
+  propertyTitle?: string;
+}
+
+export default function PropertySidebar({ propertyTitle = "Luxury Villa" }: PropertySidebarProps) {
+  const { isAuthenticated } = useAuth();
   const params = useParams();
   const propertyId = params.id as string;
+
+  // Form State
+  const [formData, setFormData] = useState({
+    propertyName: propertyTitle,
+    name: "",
+    email: "",
+    phone: "",
+    checkIn: "",
+    checkOut: "",
+    guests: "1 guest"
+  });
+
+
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
+
+  const handleInputChange = (field: string, value: string) => {
+    const sanitizedValue = sanitizeInput(value);
+    setFormData(prev => ({ ...prev, [field]: sanitizedValue }));
+    
+    // Real-time validation
+    let error: string | null = null;
+    if (field === "name") error = validateName(sanitizedValue);
+    if (field === "email") error = validateEmail(sanitizedValue);
+    if (field === "phone") error = validatePhone(sanitizedValue);
+    if (field === "checkIn" || field === "checkOut") error = sanitizedValue ? null : "This field is required";
+    
+    setErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    if (propertyTitle) {
+      setFormData(prev => ({ ...prev, propertyName: propertyTitle }));
+    }
+  }, [propertyTitle]);
+
+
 
   return (
     <div className="flex flex-col gap-8 lg:sticky lg:top-32">
@@ -53,16 +98,16 @@ export default function PropertySidebar() {
           </div>
         </div>
 
-        <button 
-          disabled={!isLoggedIn}
-          className={`w-full py-5 rounded-3xl font-bold transition-all shadow-lg shadow-primary/20 scale-[0.98] hover:scale-100 ${
-            isLoggedIn 
+        <Link 
+          href={isAuthenticated ? "/messages" : "/login"}
+          className={`w-full py-5 rounded-3xl font-bold transition-all shadow-lg shadow-primary/20 scale-[0.98] hover:scale-100 flex items-center justify-center ${
+            isAuthenticated 
               ? "bg-primary hover:bg-[#064e3b] text-white" 
               : "bg-zinc-100 text-zinc-400 cursor-not-allowed border border-zinc-200 shadow-none"
           }`}
         >
-          {isLoggedIn ? "Contact owner" : "Login to contact"}
-        </button>
+          {isAuthenticated ? "Contact owner" : "Login to contact"}
+        </Link>
       </motion.div>
 
       {/* Reserve Form Card */}
@@ -73,67 +118,109 @@ export default function PropertySidebar() {
         transition={{ delay: 0.15 }}
         className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-200/40 relative"
       >
-        {!isLoggedIn && (
+        {!isAuthenticated && (
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 rounded-[2.5rem] text-center">
             <div className="p-4 bg-white/90 rounded-2xl shadow-xl border border-zinc-100">
               <p className="text-sm font-bold text-zinc-800 mb-4 tracking-tight leading-relaxed">Please sign in to your StayWell account to reserve this property.</p>
-              <button 
-                onClick={() => setIsLoggedIn(true)}
+              <Link
+                href="/login"
                 className="inline-block px-8 py-3 bg-primary text-white rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform"
               >
                 Sign In Now
-              </button>
+              </Link>
             </div>
           </div>
         )}
 
         <h3 className="text-2xl font-bold text-center mb-10 text-foreground tracking-tight">Reserve property</h3>
         
-        <form className="space-y-8 opacity-50 select-none pointer-events-none">
-          <div className="flex flex-col gap-3">
-            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Property Name</label>
-            <input type="text" placeholder="Wooden House" className="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner" />
-          </div>
-          <div className="flex flex-col gap-3">
-            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Name</label>
+        <form className={`space-y-6 transition-opacity duration-500 ${isAuthenticated ? "opacity-100" : "opacity-30 pointer-events-none"}`}>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Property Name</label>
             <input 
               type="text" 
-              placeholder="Your name" 
-              className="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner"
-              onChange={(e) => {
-                if (e.target.value.includes("<script>")) {
-                  alert("Security Alert: Script injection detected and blocked.");
-                }
-              }}
+              value={formData.propertyName} 
+              onChange={(e) => handleInputChange("propertyName", e.target.value)}
+              className="w-full px-6 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm font-bold text-zinc-800 shadow-inner outline-none focus:ring-4 focus:ring-primary/10 transition-all" 
             />
           </div>
-          <div className="flex flex-col gap-3">
-            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Email</label>
-            <input type="email" placeholder="Your email" className="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner" />
-          </div>
-          <div className="flex flex-col gap-3">
-            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Phone</label>
-            <input type="tel" placeholder="Your phone" className="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner" />
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Your Name</label>
+            <input 
+              type="text" 
+              placeholder="e.g. John Doe" 
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner outline-none focus:ring-4 focus:ring-primary/10 ${
+                errors.name ? "border-red-500" : formData.name && !errors.name ? "border-green-500" : "border-zinc-100"
+              }`}
+            />
+            {errors.name && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.name}</span>}
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-3">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Check-in</label>
-              <div className="relative">
-                <input type="text" placeholder="7/13/2025" className="w-full pl-6 pr-4 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner" />
-              </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Email Address</label>
+            <input 
+              type="email" 
+              placeholder="john@example.com" 
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner outline-none focus:ring-4 focus:ring-primary/10 ${
+                errors.email ? "border-red-500" : formData.email && !errors.email ? "border-green-500" : "border-zinc-100"
+              }`}
+            />
+            {errors.email && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.email}</span>}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Phone Number</label>
+            <input 
+              type="tel" 
+              placeholder="+250 78X XXX XXX" 
+              value={formData.phone}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+              className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner outline-none focus:ring-4 focus:ring-primary/10 ${
+                errors.phone ? "border-red-500" : formData.phone && !errors.phone ? "border-green-500" : "border-zinc-100"
+              }`}
+            />
+            {errors.phone && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.phone}</span>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Check-in</label>
+              <input 
+                type="date" 
+                min={today}
+                value={formData.checkIn}
+                onChange={(e) => handleInputChange("checkIn", e.target.value)}
+                className={`w-full px-4 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner outline-none focus:ring-4 focus:ring-primary/10 ${
+                  errors.checkIn ? "border-red-500" : "border-zinc-100"
+                }`}
+              />
             </div>
-            <div className="flex flex-col gap-3">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Check-out</label>
-              <div className="relative">
-                <input type="text" placeholder="8/13/2025" className="w-full pl-6 pr-4 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner" />
-              </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Check-out</label>
+              <input 
+                type="date" 
+                min={formData.checkIn || today}
+                value={formData.checkOut}
+                onChange={(e) => handleInputChange("checkOut", e.target.value)}
+                className={`w-full px-4 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner outline-none focus:ring-4 focus:ring-primary/10 ${
+                  errors.checkOut ? "border-red-500" : "border-zinc-100"
+                }`}
+              />
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[2px] ml-4">Guests</label>
-            <select className="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all shadow-inner appearance-none cursor-pointer">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Guests</label>
+            <select 
+              value={formData.guests}
+              onChange={(e) => setFormData(prev => ({ ...prev, guests: e.target.value }))}
+              className="w-full px-6 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm font-bold shadow-inner focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+            >
               <option>1 guest</option>
               <option>2 guests</option>
               <option>3 guests</option>
@@ -142,10 +229,24 @@ export default function PropertySidebar() {
           </div>
 
           <Link 
-            href={`/properties/${propertyId}/booking`}
-            className="w-full py-5 bg-primary hover:bg-[#064e3b] text-white rounded-3xl font-bold transition-all shadow-lg shadow-primary/20 mt-4 scale-[0.98] hover:scale-100 flex items-center justify-center"
+            href={
+              Object.values(errors).every(e => e === null) && Object.values(formData).every(v => v !== "")
+              ? `/properties/${propertyId}/booking`
+              : "#"
+            }
+            onClick={(e) => {
+              if (!(Object.values(errors).every(e => e === null) && Object.values(formData).every(v => v !== ""))) {
+                e.preventDefault();
+                alert("Please fill in all fields correctly before proceeding.");
+              }
+            }}
+            className={`w-full py-5 text-white rounded-3xl font-bold transition-all shadow-lg mt-4 flex items-center justify-center ${
+              Object.values(errors).every(e => e === null) && Object.values(formData).every(v => v !== "")
+              ? "bg-primary hover:bg-[#064e3b] shadow-primary/20 scale-100 active:scale-95"
+              : "bg-zinc-300 cursor-not-allowed opacity-70"
+            }`}
           >
-            Reserve
+            Reserve Now
           </Link>
         </form>
       </motion.div>

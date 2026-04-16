@@ -69,14 +69,14 @@ export default function Hero() {
         {/* Action Buttons */}
         <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-5">
           <Link
-            href="#"
+            href="/properties"
             className="px-8 py-4 bg-[#064e3b] text-white font-bold rounded-full hover:bg-[#065f46] transition-all shadow-[0_8px_30px_rgb(6,78,59,0.3)] hover:shadow-[0_8px_30px_rgb(6,78,59,0.5)] flex items-center gap-2 group min-w-[180px] justify-center"
           >
             Get Started 
             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
           </Link>
           <Link
-            href="#"
+            href="/properties"
             className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-full border border-white/20 hover:bg-white/20 transition-all min-w-[180px] justify-center flex"
           >
             Explore Stays

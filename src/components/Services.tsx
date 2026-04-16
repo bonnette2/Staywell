@@ -11,7 +11,7 @@ const fadeUp = {
 };
 
 const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9, rotateZ: Math.random() > 0.5 ? 2 : -2 },
+  hidden: { opacity: 0, scale: 0.9, rotateZ: -2 },
   visible: { opacity: 1, scale: 1, rotateZ: 0, transition: { type: "spring", bounce: 0.3, duration: 0.8 } as any }
 };
 

@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: "Discover, explore, and book comfortable places to stay.",
 };
 
+import { AuthProvider } from "@/context/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +24,11 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

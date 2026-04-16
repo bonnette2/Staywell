@@ -8,13 +8,53 @@ import { motion, Variants, AnimatePresence } from "framer-motion";
 import { Mail, Phone, ArrowRight, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import FAQ from "@/components/FAQ";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
 };
 
+import { validateName, validateEmail, sanitizeInput } from "@/utils/validation";
+
 export default function ContactPage() {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (field: string, value: string) => {
+    const sanitized = sanitizeInput(value);
+    setFormData(prev => ({ ...prev, [field]: sanitized }));
+    
+    // Real-time validation
+    let error: string | null = null;
+    if (field === "name") error = validateName(sanitized);
+    if (field === "email") error = validateEmail(sanitized);
+    if (field === "message") error = sanitized.trim() ? null : "Message is required";
+    
+    setErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const nameError = validateName(formData.name);
+    const emailError = validateEmail(formData.email);
+    const messageError = formData.message.trim() ? null : "Message is required";
+
+    if (nameError || emailError || messageError) {
+      setErrors({ name: nameError, email: emailError, message: messageError });
+      return;
+    }
+
+    setIsSubmitting(true);
+    // Simulate API call
+    setTimeout(() => {
+      alert("Thank you! Your message has been sent.");
+      setFormData({ name: "", email: "", message: "" });
+      setIsSubmitting(false);
+    }, 1500);
+  };
+
   return (
     <>
       <Preloader />
@@ -117,111 +157,67 @@ export default function ContactPage() {
               transition={{ delay: 0.2 }}
               className="bg-white rounded-[3rem] p-10 md:p-14 border border-zinc-100 shadow-2xl shadow-zinc-200/50"
             >
-              <form className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="space-y-3">
                   <label className="text-sm font-bold text-zinc-800 ml-2">Full Name</label>
                   <input 
                     type="text" 
                     placeholder="Enter your name" 
-                    className="w-full px-8 py-5 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-zinc-400"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    className={`w-full px-8 py-5 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 placeholder:text-zinc-400 ${
+                      errors.name ? "border-red-500" : formData.name && !errors.name ? "border-green-500" : "border-transparent"
+                    }`}
+                    suppressHydrationWarning
                   />
+                  {errors.name && <p className="text-xs font-bold text-red-500 ml-2">{errors.name}</p>}
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-bold text-zinc-800 ml-2">Email</label>
                   <input 
                     type="email" 
                     placeholder="Enter your Email" 
-                    className="w-full px-8 py-5 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-zinc-400"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`w-full px-8 py-5 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 placeholder:text-zinc-400 ${
+                      errors.email ? "border-red-500" : formData.email && !errors.email ? "border-green-500" : "border-transparent"
+                    }`}
+                    suppressHydrationWarning
                   />
+                  {errors.email && <p className="text-xs font-bold text-red-500 ml-2">{errors.email}</p>}
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-bold text-zinc-800 ml-2">Message</label>
                   <textarea 
                     placeholder="Leave a message" 
                     rows={4}
-                    className="w-full px-8 py-5 bg-zinc-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all resize-none placeholder:text-zinc-400"
+                    value={formData.message}
+                    onChange={(e) => handleInputChange("message", e.target.value)}
+                    className={`w-full px-8 py-5 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 resize-none placeholder:text-zinc-400 ${
+                      errors.message ? "border-red-500" : formData.message && !errors.message ? "border-green-500" : "border-transparent"
+                    }`}
+                    suppressHydrationWarning
                   />
+                  {errors.message && <p className="text-xs font-bold text-red-500 ml-2">{errors.message}</p>}
                 </div>
-                <button className="w-full md:w-auto px-12 py-5 bg-primary hover:bg-[#064e3b] text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 scale-[0.98] hover:scale-100">
-                  Contact us
+                <button 
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full md:w-auto px-12 py-5 bg-primary hover:bg-[#064e3b] text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 scale-[0.98] hover:scale-100 ${
+                    isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {isSubmitting ? "Sending..." : "Contact us"}
                 </button>
               </form>
             </motion.div>
           </div>
         </section>
 
-        {/* FAQs Section */}
-        <section className="py-24 max-w-7xl mx-auto px-6 mb-32">
-          <div className="text-center mb-20">
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl font-black text-[#171717] tracking-tight mb-6"
-            >
-              Frequently Asked Questions
-            </motion.h2>
-            <p className="text-zinc-500 font-medium text-lg">Quick answers to questions you may have.</p>
-          </div>
-
-          <div className="max-w-3xl mx-auto space-y-4">
-            {[
-              { 
-                q: "How soon will I get a response?", 
-                a: "Our team typically responds within 2-3 hours during business hours. For urgent matters, please use our direct phone line." 
-              },
-              { 
-                q: "Do you offer properties across all Rwanda?", 
-                a: "Yes! We specialize in premium listings across all 30 districts of Rwanda, from the heart of Kigali to the serene shores of Lake Kivu." 
-              },
-              { 
-                q: "How can I schedule a property viewing?", 
-                a: "Once you find a property you love, use the 'Contact Owner' button or fill out the form above. We'll coordinate a time that works for you." 
-              },
-              { 
-                q: "Are there any service fees for buyers?", 
-                a: "StayWell is free to browse. A small service fee of 1-3% is only applied during the final booking/reservation process to ensure secure transactions." 
-              }
-            ].map((faq, i) => (
-              <FaqItem key={i} question={faq.q} answer={faq.a} />
-            ))}
-          </div>
-        </section>
+        <FAQ />
 
       </main>
       <Footer />
     </>
-  );
-}
-
-function FaqItem({ question, answer }: { question: string, answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  return (
-    <div className="border-b border-zinc-100 last:border-none">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-8 flex items-center justify-between text-left group transition-all"
-      >
-        <span className="text-xl font-bold text-zinc-800 transition-colors group-hover:text-primary leading-tight pl-2">{question}</span>
-        <div className={`w-10 h-10 rounded-full border border-zinc-100 flex items-center justify-center shrink-0 transition-all ${isOpen ? 'bg-primary border-primary text-white rotate-180' : 'bg-zinc-50'}`}>
-          <Plus size={18} className={`transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`} />
-        </div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
-            className="overflow-hidden"
-          >
-            <p className="pb-8 text-zinc-500 font-medium text-lg leading-relaxed pl-2 pr-12">
-              {answer}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 }

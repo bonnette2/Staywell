@@ -114,6 +114,7 @@ export default function Footer() {
                   type="email" 
                   placeholder="Enter Your Email" 
                   className="w-full bg-[#0a3f2f] border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-white placeholder:text-[#a7b5b0]/50"
+                  suppressHydrationWarning
                 />
               </div>
             </div>

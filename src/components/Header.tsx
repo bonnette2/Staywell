@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
-import { motion } from "framer-motion";
+import { Menu, X, User as UserIcon, LogOut, Heart, Calendar, CreditCard, Bell, Shield, MessageSquare } from "lucide-react";
+import NextImage from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -26,17 +30,30 @@ export default function Header() {
     { name: "Contact Us", href: "/contact" },
   ];
 
+  const userMenuItems = [
+    { name: "Profile", href: "/account/profile", icon: UserIcon },
+    { name: "Messages", href: "/messages", icon: MessageSquare },
+    { name: "Bookings", href: "/account/bookings", icon: Calendar },
+    { name: "Wishlist", href: "/account/wishlist", icon: Heart },
+    { name: "Payment Methods", href: "/account/payments", icon: CreditCard },
+    { name: "Notifications", href: "/account/settings", icon: Bell },
+    { name: "Security", href: "/account/settings", icon: Shield },
+  ];
+
+  const isHome = pathname === "/";
+  const showSolidNav = isScrolled || !isHome;
+
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/80 backdrop-blur-md shadow-sm py-4"
+      className={`fixed top-0 left-0 w-full z-[9999] transition-all duration-300 ${
+        showSolidNav
+          ? "bg-white/90 backdrop-blur-md shadow-sm py-4"
           : "bg-transparent py-6"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className={`text-2xl font-bold tracking-tight transition-colors ${isScrolled ? 'text-primary' : 'text-white'}`}>
+        <Link href="/" className={`text-2xl font-bold tracking-tight transition-colors ${showSolidNav ? 'text-primary' : 'text-white'}`}>
           StayWell
         </Link>
 
@@ -49,7 +66,7 @@ export default function Header() {
                 key={link.name}
                 href={link.href}
                 className={`text-sm font-medium transition-all group flex flex-col items-center hover:opacity-100 ${
-                  isScrolled 
+                  showSolidNav 
                     ? (isActive ? 'text-[#065f46] font-bold' : 'text-foreground hover:text-primary opacity-70') 
                     : (isActive ? 'text-white opacity-100 font-bold scale-110' : 'text-white/70 hover:opacity-100')
                 }`}
@@ -68,23 +85,103 @@ export default function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-          <Link
-            href="#"
-            className={`text-sm font-medium transition-colors hover:opacity-80 ${isScrolled ? 'text-foreground hover:text-primary' : 'text-white'}`}
-          >
-            Sign In
-          </Link>
-          <Link
-            href="#"
-            className="text-sm font-medium bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-hover transition-colors shadow-sm"
-          >
-            Sign Up
-          </Link>
+          {isAuthenticated ? (
+            <>
+              {/* Messages icon */}
+              <Link
+                href="/messages"
+                className={`relative p-2 rounded-2xl transition-all hover:scale-105 ${showSolidNav ? "text-zinc-600 hover:bg-zinc-100" : "text-white/80 hover:text-white hover:bg-white/10"}`}
+              >
+                <MessageSquare size={22} />
+                {/* Unread badge */}
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow">3</span>
+              </Link>
+
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className={`flex items-center gap-3 p-1 rounded-full border transition-all hover:shadow-md ${
+                  showSolidNav ? "border-zinc-200" : "border-white/20 bg-white/10"
+                }`}
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+                  {user?.avatar ? (
+                    <NextImage src={user.avatar} alt={user.name} width={32} height={32} className="object-cover" />
+                  ) : (
+                    <UserIcon size={16} className={showSolidNav ? "text-primary" : "text-white"} />
+                  )}
+                </div>
+                <span className={`text-sm font-bold pr-2 ${showSolidNav ? "text-zinc-800" : "text-white"}`}>
+                  {user?.name.split(" ")[0]}
+                </span>
+              </button>
+
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <>
+                    <div className="fixed inset-0 z-[-1]" onClick={() => setIsProfileOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-3 w-64 bg-white rounded-3xl shadow-2xl border border-zinc-100 py-3 z-50 overflow-hidden"
+                    >
+                      <div className="px-5 py-3 mb-2 border-b border-zinc-50">
+                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Signed in as</p>
+                        <p className="text-sm font-bold text-zinc-800 truncate">{user?.email}</p>
+                      </div>
+                      
+                      {userMenuItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-zinc-600 hover:text-primary hover:bg-zinc-50 transition-all"
+                        >
+                          <item.icon size={18} />
+                          {item.name}
+                        </Link>
+                      ))}
+                      
+                      <div className="h-px bg-zinc-50 my-2" />
+                      
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsProfileOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all"
+                      >
+                        <LogOut size={18} />
+                        Logout
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </>
+        ) : (
+          <>
+              <Link
+                href="/login"
+                className={`text-sm font-medium transition-colors hover:opacity-80 ${showSolidNav ? 'text-foreground hover:text-primary' : 'text-white'}`}
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="text-sm font-medium bg-primary text-white px-5 py-2.5 rounded-full hover:bg-[#064e3b] transition-colors shadow-sm"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
         <button
-          className={`md:hidden p-2 transition-colors ${isScrolled ? 'text-foreground' : 'text-white'}`}
+          className={`md:hidden p-2 transition-colors ${showSolidNav ? 'text-foreground' : 'text-white'}`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -105,18 +202,48 @@ export default function Header() {
             </Link>
           ))}
           <div className="h-px bg-slate-100 my-2" />
-          <Link
-            href="#"
-            className="text-base font-medium text-foreground hover:text-primary transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="#"
-            className="text-base font-medium text-primary hover:text-primary-hover transition-colors"
-          >
-            Sign Up
-          </Link>
+          {isAuthenticated ? (
+            <>
+              {userMenuItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-base font-medium text-foreground hover:text-primary transition-colors flex items-center gap-3"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <item.icon size={18} />
+                  {item.name}
+                </Link>
+              ))}
+              <button
+                onClick={() => {
+                  logout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-base font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-3"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-base font-medium text-foreground hover:text-primary transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="text-base font-medium text-primary hover:text-[#064e3b] transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
