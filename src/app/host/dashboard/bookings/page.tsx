@@ -23,14 +23,100 @@ import {
   Reply,
   Forward,
   Info,
-  BookOpen
+  BookOpen,
+  Square,
+  CheckSquare
 } from "lucide-react";
 import Image from "next/image";
 
 export default function BookingsPage() {
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState("Guest Information");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | null }>({ message: "", type: null });
+  const [confirmAction, setConfirmAction] = useState<{ id: number | number[]; status: string; type: "single" | "bulk" } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const initialBookings = [
+    { id: 1, guest: "Sarah Johnson", property: "Luxury Villa Kigali", arrival: "2025-07-12", departure: "2025-07-15", status: "Confirmed" },
+    { id: 2, guest: "Michael Jen", property: "Luxury Villa Kigali", arrival: "2025-07-16", departure: "2025-07-20", status: "Pending" },
+    { id: 3, guest: "Emma wilson", property: "Luxury Villa Kigali", arrival: "2025-07-22", departure: "2025-07-25", status: "Confirmed" },
+    { id: 4, guest: "David brown", property: "Luxury Villa Kigali", arrival: "2025-08-01", departure: "2025-08-05", status: "Rejected" },
+    { id: 5, guest: "Lisa anderson", property: "Luxury Villa Kigali", arrival: "2025-08-10", departure: "2025-08-15", status: "Pending" },
+    { id: 6, guest: "Emma wilson", property: "Luxury Villa Kigali", arrival: "2025-08-20", departure: "2025-08-25", status: "Confirmed" },
+    { id: 7, guest: "Michael Jen", property: "Luxury Villa Kigali", arrival: "2025-09-01", departure: "2025-09-05", status: "Confirmed" },
+    { id: 8, guest: "Sarah Johnson", property: "Luxury Villa Kigali", arrival: "2025-09-10", departure: "2025-09-15", status: "Pending" },
+  ];
+
+  const [allBookings, setAllBookings] = useState(initialBookings);
+
+  const filteredBookings = allBookings.filter(booking => {
+    const matchesSearch = booking.guest.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         booking.property.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "All" || booking.status.toLowerCase() === statusFilter.toLowerCase();
+    
+    let matchesDate = true;
+    if (dateRange.start && dateRange.end) {
+      const arrival = new Date(booking.arrival);
+      const start = new Date(dateRange.start);
+      const end = new Date(dateRange.end);
+      matchesDate = arrival >= start && arrival <= end;
+    } else if (dateRange.start) {
+      const arrival = new Date(booking.arrival);
+      const start = new Date(dateRange.start);
+      matchesDate = arrival.toDateString() === start.toDateString();
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  const handleActionClick = (booking: any) => {
+    setSelectedBooking(booking);
+    setIsModalOpen(true);
+    setActiveTab("Guest Information");
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredBookings.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredBookings.map(b => b.id));
+    }
+  };
+
+  const toggleSelect = (id: number) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(prev => prev.filter(i => i !== id));
+    } else {
+      setSelectedIds(prev => [...prev, id]);
+    }
+  };
+
+  const executeStatusUpdate = (id: number | number[], newStatus: string) => {
+    const ids = Array.isArray(id) ? id : [id];
+    setAllBookings(prev => prev.map(b => ids.includes(b.id) ? { ...b, status: newStatus } : b));
+    
+    if (selectedBooking && ids.includes(selectedBooking.id)) {
+      setSelectedBooking({ ...selectedBooking, status: newStatus });
+    }
+
+    if (Array.isArray(id)) setSelectedIds([]);
+    
+    setToast({ 
+      message: `Booking${ids.length > 1 ? 's' : ''} ${newStatus.toLowerCase()} successfully`, 
+      type: "success" 
+    });
+    setTimeout(() => setToast({ message: "", type: null }), 3000);
+    setConfirmAction(null);
+  };
+
+  const handleBulkStatusUpdate = (newStatus: string) => {
+    setConfirmAction({ id: selectedIds, status: newStatus, type: "bulk" });
+  };
 
   const stats = [
     { label: "Total Bookings", value: "128", trend: "3.6", icon: Building2 },
@@ -39,22 +125,7 @@ export default function BookingsPage() {
     { label: "Upcoming stays", value: "35%", trend: "3.6", icon: PieChartIcon },
   ];
 
-  const bookings = [
-    { id: 1, guest: "Sarah Johnson", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "Confirmed" },
-    { id: 2, guest: "Michael Jen", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-    { id: 3, guest: "Emma wilson", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-    { id: 4, guest: "David brown", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-    { id: 5, guest: "Lisa anderson", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-    { id: 6, guest: "Emma wilson", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-    { id: 7, guest: "Michael Jen", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-    { id: 8, guest: "Sarah Johnson", property: "Luxury Villa Kigali", arrival: "12 - 07 - 2025", departure: "12 - 07 - 2025", status: "confirmed" },
-  ];
 
-  const handleActionClick = (booking: any) => {
-    setSelectedBooking(booking);
-    setIsModalOpen(true);
-    setActiveTab("Guest Information");
-  };
 
   return (
     <div className="space-y-8 pb-10">
@@ -107,21 +178,87 @@ export default function BookingsPage() {
           <input 
             type="text" 
             placeholder="Search bookings, guests" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            suppressHydrationWarning
             className="w-full bg-white border border-zinc-200/80 rounded-lg py-2.5 pl-10 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all placeholder:text-zinc-400 shadow-sm"
           />
         </div>
 
         <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-2 bg-white border border-zinc-200/80 px-4 py-2.5 rounded-lg shadow-sm">
-            <CalendarMinus size={16} className="text-zinc-500" />
-            <span className="text-sm font-semibold text-zinc-700">Mar 05 - May 04</span>
+          <div className="relative">
+            <button 
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="flex items-center gap-2 bg-white border border-zinc-200/80 px-4 py-2.5 rounded-lg shadow-sm"
+            >
+              <CalendarMinus size={16} className="text-zinc-500" />
+              <span className="text-sm font-semibold text-zinc-700">
+                {dateRange.start ? `${dateRange.start} ${dateRange.end ? `- ${dateRange.end}` : ''}` : "Select Date"}
+              </span>
+              {(dateRange.start || dateRange.end) && (
+                <X 
+                  size={14} 
+                  className="ml-2 hover:text-red-500 cursor-pointer" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDateRange({ start: "", end: "" });
+                  }}
+                />
+              )}
+            </button>
+            
+            <AnimatePresence>
+              {showDatePicker && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute top-full mt-2 left-0 bg-white border border-zinc-200 rounded-xl shadow-xl p-4 z-50 w-[300px]"
+                >
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-zinc-400">Start Date</label>
+                      <input 
+                        type="date" 
+                        value={dateRange.start}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                        className="w-full mt-1 border border-zinc-200 rounded-lg p-2 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-zinc-400">End Date (Optional)</label>
+                      <input 
+                        type="date" 
+                        min={dateRange.start}
+                        value={dateRange.end}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                        className="w-full mt-1 border border-zinc-200 rounded-lg p-2 text-sm"
+                      />
+                    </div>
+                    <button 
+                      onClick={() => setShowDatePicker(false)}
+                      className="w-full bg-[#0F3D2E] text-white py-2 rounded-lg text-sm font-bold"
+                    >
+                      Apply Filter
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="relative">
-            <button className="flex items-center gap-6 bg-white border border-zinc-200/80 px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-zinc-700 w-36 justify-between">
-              All type
-              <ChevronDown size={16} className="text-zinc-400" />
-            </button>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="flex items-center gap-6 bg-white border border-zinc-200/80 px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-zinc-700 w-36 appearance-none outline-none pr-10"
+            >
+              <option value="All">All Status</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Pending">Pending</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
           </div>
 
           <div className="relative">
@@ -142,13 +279,58 @@ export default function BookingsPage() {
         </div>
       </div>
 
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedIds.length > 0 && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+            animate={{ height: "auto", opacity: 1, marginBottom: 24 }}
+            exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-[#0F3D2E]/5 border border-[#0F3D2E]/20 p-4 rounded-xl flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-bold text-[#0F3D2E]">{selectedIds.length} Bookings selected</span>
+                <div className="h-4 w-[1px] bg-[#0F3D2E]/20" />
+                <button 
+                  onClick={() => setSelectedIds([])}
+                  className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 transition"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => handleBulkStatusUpdate("Confirmed")}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-600/10 hover:bg-emerald-700 transition flex items-center gap-2"
+                >
+                  <CheckCircle2 size={14} /> Approve All
+                </button>
+                <button 
+                  onClick={() => handleBulkStatusUpdate("Rejected")}
+                  className="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition flex items-center gap-2"
+                >
+                  <XCircle size={14} /> Reject All
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Table */}
       <div className="bg-white rounded-xl border border-zinc-100 overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-[#0F3D2E] text-white">
               <th className="p-5 w-14 text-center border-b border-[#0F3D2E]">
-                <div className="w-[18px] h-[18px] border-[1.5px] border-white/40 rounded-[4px] mx-auto"></div>
+                <button 
+                  onClick={toggleSelectAll}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  {selectedIds.length === filteredBookings.length && filteredBookings.length > 0 ? <CheckSquare size={18} className="text-white"/> : <Square size={18}/>}
+                </button>
               </th>
               <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Guest Name</th>
               <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Property</th>
@@ -159,37 +341,65 @@ export default function BookingsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100/80">
-            {bookings.map((booking, i) => (
+            {filteredBookings.map((booking, i) => (
               <tr 
                 key={booking.id} 
-                className={`transition-all hover:bg-zinc-50 ${i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}`}
+                className={`transition-all hover:bg-zinc-50 ${
+                  selectedIds.includes(booking.id) ? 'bg-[#0F3D2E]/5 hover:bg-[#0F3D2E]/10' : (i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50')
+                }`}
               >
                 <td className="p-4 text-center">
-                  <div className="w-[18px] h-[18px] border-[1.5px] border-zinc-300 rounded-[4px] mx-auto bg-white"></div>
+                  <button 
+                    onClick={() => toggleSelect(booking.id)}
+                    className="text-zinc-400 hover:text-[#0F3D2E] transition-colors"
+                  >
+                    {selectedIds.includes(booking.id) ? <CheckSquare size={18} className="text-[#0F3D2E]"/> : <Square size={18}/>}
+                  </button>
                 </td>
-                <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.guest}</td>
-                <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.property}</td>
+                <td className="p-4 text-[13px] font-semibold text-zinc-900">{booking.guest}</td>
+                <td className="p-4 text-[13px] font-medium text-zinc-500">{booking.property}</td>
                 <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.arrival}</td>
                 <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.departure}</td>
                 <td className="p-4 text-center">
-                  <span className="inline-block px-4 py-1.5 rounded-md text-[11px] font-bold bg-[#0F3D2E] text-white tracking-wide">
+                  <span className={`inline-block px-4 py-1.5 rounded-md text-[11px] font-bold tracking-wide ${
+                    booking.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-600' :
+                    booking.status === 'Rejected' ? 'bg-red-50 text-red-600' :
+                    'bg-zinc-100 text-zinc-600'
+                  }`}>
                     {booking.status}
                   </span>
                 </td>
-                <td className="p-4 text-center relative">
-                  <button 
-                    onClick={() => handleActionClick(booking)}
-                    className="p-1.5 text-zinc-600 hover:bg-zinc-200 rounded-md transition"
-                  >
-                    <MoreVertical size={18} />
-                  </button>
-                  {/* Action dropdown styling can be added here if needed */}
+                <td className="p-4 text-center relative group">
+                  <div className="flex items-center justify-center gap-2">
+                    <button 
+                      onClick={() => handleActionClick(booking)}
+                      className="p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-md transition"
+                      title="View Details"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button 
+                      onClick={() => setConfirmAction({ id: booking.id, status: "Confirmed", type: "single" })}
+                      className="p-1.5 text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition"
+                      title="Approve"
+                    >
+                      <CheckCircle2 size={16} />
+                    </button>
+                    <button 
+                      onClick={() => setConfirmAction({ id: booking.id, status: "Rejected", type: "single" })}
+                      className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition"
+                      title="Reject"
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+    </div>
 
       {/* Pagination */}
       <div className="flex items-center justify-between pt-4">
@@ -224,7 +434,6 @@ export default function BookingsPage() {
               <div className="bg-[#0F3D2E] text-white px-8 py-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-bold">View Booking details</h2>
-                  <p className="text-xs text-white/70 font-medium">Manage you real estate properties using staywell</p>
                 </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
@@ -236,7 +445,7 @@ export default function BookingsPage() {
 
               {/* Tabs */}
               <div className="flex items-center justify-between px-10 pt-4 border-b border-zinc-100 bg-white shadow-sm z-10 sticky top-0">
-                {["Guest Information", "Booking details", "Payment Information", "Messages"].map((tab) => (
+                {["Guest Information", "Booking details", "Payment Information"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -266,6 +475,7 @@ export default function BookingsPage() {
                          <Image 
                            src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2662&auto=format&fit=crop" 
                            fill
+                           sizes="200px"
                            alt="Guest Profile" 
                            className="object-cover"
                          />
@@ -312,7 +522,13 @@ export default function BookingsPage() {
                      
                      <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row gap-8">
                         <div className="w-[300px] h-[180px] rounded-xl overflow-hidden relative shrink-0">
-                          <Image src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" fill className="object-cover" alt="Property" />
+                          <Image 
+                            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" 
+                            fill 
+                            sizes="300px"
+                            className="object-cover" 
+                            alt="Property" 
+                          />
                         </div>
                         <div className="flex-1 flex flex-col justify-between">
                            <div>
@@ -421,48 +637,101 @@ export default function BookingsPage() {
                   </div>
                 )}
 
-                {/* 4. Messages */}
-                {activeTab === "Messages" && (
-                  <div className="space-y-4">
-                    <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm flex items-start justify-between gap-4">
-                       <div className="flex items-start gap-4">
-                         <div className="w-10 h-10 rounded-full overflow-hidden relative shrink-0">
-                           <Image src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2662&auto=format&fit=crop" fill alt="avatar" />
-                         </div>
-                         <div>
-                           <div className="flex items-center gap-3 mb-1">
-                             <span className="font-bold text-sm text-zinc-900">Guest</span>
-                             <span className="text-xs font-semibold text-zinc-400">Mar 26, 10:30 AM</span>
-                           </div>
-                           <p className="text-sm font-medium text-zinc-700">Looking forward to my stay! Is early check-in possible?</p>
-                         </div>
-                       </div>
-                       <div className="flex gap-2 text-zinc-400">
-                         <button className="hover:text-zinc-700 transition"><Reply size={18}/></button>
-                         <button className="hover:text-zinc-700 transition"><Forward size={18}/></button>
-                       </div>
-                    </div>
 
-                    <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm flex items-start justify-between gap-4">
-                       <div className="flex items-start gap-4">
-                         <div className="w-10 h-10 rounded-full overflow-hidden relative shrink-0">
-                           <Image src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2662&auto=format&fit=crop" fill alt="avatar" />
-                         </div>
-                         <div>
-                           <div className="flex items-center gap-3 mb-1">
-                             <span className="font-bold text-sm text-zinc-900">Guest</span>
-                             <span className="text-xs font-semibold text-zinc-400">Mar 26, 10:30 AM</span>
-                           </div>
-                           <p className="text-sm font-medium text-zinc-700">Looking forward to my stay! Is early check-in possible?</p>
-                         </div>
-                       </div>
-                       <div className="flex gap-2 text-zinc-400">
-                         <button className="hover:text-zinc-700 transition"><Reply size={18}/></button>
-                         <button className="hover:text-zinc-700 transition"><Forward size={18}/></button>
-                       </div>
-                    </div>
-                  </div>
-                )}
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="p-6 border-t border-zinc-100 bg-zinc-50 flex justify-between items-center px-10">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    selectedBooking?.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' :
+                    selectedBooking?.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                    'bg-zinc-200 text-zinc-700'
+                  }`}>
+                    {selectedBooking?.status}
+                  </span>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-6 py-2.5 text-sm font-bold text-zinc-600 hover:text-zinc-900 transition-colors"
+                  >
+                    Close
+                  </button>
+                  {selectedBooking?.status !== "Confirmed" && (
+                    <button 
+                      onClick={() => setConfirmAction({ id: selectedBooking.id, status: "Confirmed", type: "single" })}
+                      className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all"
+                    >
+                      Approve Booking
+                    </button>
+                  )}
+                  {selectedBooking?.status !== "Rejected" && (
+                    <button 
+                      onClick={() => setConfirmAction({ id: selectedBooking.id, status: "Rejected", type: "single" })}
+                      className="px-6 py-2.5 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm font-bold hover:bg-red-100 transition-all"
+                    >
+                      Reject Booking
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <Toast toast={toast} />
+
+      {/* Confirmation Dialog */}
+      <AnimatePresence>
+        {confirmAction && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setConfirmAction(null)}
+              className="absolute inset-0 bg-zinc-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl p-8 max-w-sm w-full relative z-10 shadow-2xl text-center"
+            >
+              <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 ${
+                confirmAction.status === "Confirmed" ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"
+              }`}>
+                {confirmAction.status === "Confirmed" ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
+              </div>
+              <h3 className="text-xl font-extrabold text-zinc-900 mb-2">
+                {confirmAction.status === "Confirmed" ? "Approve Booking" : "Reject Booking"}
+              </h3>
+              <p className="text-zinc-500 text-sm font-medium mb-8">
+                Are you sure you want to {confirmAction.status === "Confirmed" ? "approve" : "reject"} 
+                {confirmAction.type === "bulk" ? ` these ${Array.isArray(confirmAction.id) ? confirmAction.id.length : ''} bookings` : " this booking"}? 
+                This action will update the status immediately.
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setConfirmAction(null)}
+                  className="flex-1 py-3 bg-zinc-100 text-zinc-600 rounded-xl text-sm font-bold hover:bg-zinc-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => executeStatusUpdate(confirmAction.id, confirmAction.status)}
+                  className={`flex-1 py-3 text-white rounded-xl text-sm font-bold shadow-lg transition-all ${
+                    confirmAction.status === "Confirmed" 
+                      ? "bg-emerald-600 shadow-emerald-600/20 hover:bg-emerald-700" 
+                      : "bg-red-600 shadow-red-600/20 hover:bg-red-700"
+                  }`}
+                >
+                  Confirm
+                </button>
               </div>
             </motion.div>
           </div>
@@ -472,8 +741,28 @@ export default function BookingsPage() {
   );
 }
 
+{/* Toast Notification */}
+function Toast({ toast }: { toast: any }) {
+  return (
+    <AnimatePresence>
+      {toast.type && (
+        <motion.div 
+          initial={{ opacity: 0, y: 50, x: "-50%" }}
+          animate={{ opacity: 1, y: 0, x: "-50%" }}
+          exit={{ opacity: 0, y: 50, x: "-50%" }}
+          className={`fixed bottom-10 left-1/2 z-[100] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-white font-bold text-sm ${
+            toast.type === "success" ? "bg-emerald-600" : "bg-red-600"
+          }`}
+        >
+          {toast.message}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // Stub for PieChart Icon not available in Lucide natively without creating an explicit SVG
-function PieChartIcon(props: any) {
+function PieChartIcon(props: { size?: number; className?: string }) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 

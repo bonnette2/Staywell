@@ -37,9 +37,9 @@ export default function Header() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
+    { name: "About us", href: "/about" },
     { name: "Properties", href: "/properties" },
-    { name: "Contact Us", href: "/contact" },
+    { name: "Contact us", href: "/contact" },
   ];
 
   const userMenuItems = [
@@ -59,19 +59,13 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-[9999] transition-all duration-300 ${
-        showSolidNav
-          ? "bg-[#013A37] shadow-sm py-4"
-          : "bg-transparent py-6"
-      }`}
+      className="fixed top-0 left-0 w-full z-[9999] transition-all duration-300 pt-4 px-4 md:pt-6 md:px-6 pointer-events-none"
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto flex items-center justify-between transition-all duration-300 pointer-events-auto bg-[#1c2533]/50 backdrop-blur-lg shadow-2xl rounded-full border border-white/5 py-3.5 px-6 md:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-            <Home size={20} />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-white transition-colors">
+        <Link href="/" className="flex items-center gap-2">
+          <Home size={20} className="text-white" />
+          <span className="text-xl font-medium tracking-wide text-white transition-colors">
             StayWell
           </span>
         </Link>
@@ -79,22 +73,20 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = pathname === link.href || (link.name === "Home" && pathname?.includes("/guest/home"));
             return (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-medium transition-all group flex flex-col items-center hover:opacity-100 ${
-                  showSolidNav 
-                    ? (isActive ? 'text-emerald-400 font-bold' : 'text-white/80 hover:text-white') 
-                    : (isActive ? 'text-white opacity-100 font-bold scale-110' : 'text-white/70 hover:opacity-100')
+                className={`text-sm tracking-wide transition-all group flex flex-col items-center hover:opacity-100 ${
+                  isActive ? 'text-white font-semibold' : 'text-white/70 hover:opacity-100'
                 }`}
               >
                 {link.name}
                 {isActive && (
                   <motion.div 
                     layoutId="underline"
-                    className={`h-0.5 w-full bg-current rounded-full mt-1`}
+                    className="h-0.5 w-full bg-white rounded-full mt-1.5"
                   />
                 )}
               </Link>
@@ -109,7 +101,7 @@ export default function Header() {
               {/* Messages icon */}
               <Link
                 href="/messages"
-                className={`relative p-2 rounded-2xl transition-all hover:scale-105 ${showSolidNav ? "text-zinc-600 hover:bg-zinc-100" : "text-white/80 hover:text-white hover:bg-white/10"}`}
+                className="relative p-2 rounded-full transition-all hover:scale-105 text-white/90 hover:text-white hover:bg-white/10"
               >
                 <MessageSquare size={22} />
                 {/* Unread badge */}
@@ -119,18 +111,16 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className={`flex items-center gap-3 p-1 rounded-full border transition-all hover:shadow-md ${
-                  showSolidNav ? "border-zinc-200" : "border-white/20 bg-white/10"
-                }`}
+                className="flex items-center gap-3 p-1 pr-3 rounded-full border border-transparent transition-all hover:shadow-md hover:bg-white/5"
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
                   {user?.avatar ? (
                     <NextImage src={user.avatar} alt={user.name} width={32} height={32} className="object-cover" />
                   ) : (
-                    <UserIcon size={16} className={showSolidNav ? "text-primary" : "text-white"} />
+                    <UserIcon size={16} className="text-white" />
                   )}
                 </div>
-                <span className={`text-sm font-bold pr-2 ${showSolidNav ? "text-zinc-800" : "text-white"}`}>
+                <span className="text-sm font-medium text-white">
                   {user?.name.split(" ")[0]}
                 </span>
               </button>
@@ -184,7 +174,7 @@ export default function Header() {
           <>
               <Link
                 href="/login"
-                className={`text-sm font-medium transition-colors hover:opacity-80 ${showSolidNav ? 'text-foreground hover:text-primary' : 'text-white'}`}
+                className="text-sm font-medium transition-colors hover:opacity-80 text-white"
               >
                 Sign In
               </Link>
@@ -200,7 +190,7 @@ export default function Header() {
 
         {/* Mobile Menu Toggle */}
         <button
-          className={`md:hidden p-2 transition-colors ${showSolidNav ? 'text-foreground' : 'text-white'}`}
+          className="md:hidden p-2 transition-colors text-white"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -209,7 +199,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-2">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-2 pointer-events-auto mt-2 rounded-2xl border border-zinc-100">
           {navLinks.map((link) => (
             <Link
               key={link.name}
