@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import Image from "next/image";
 import { Plus, Minus } from "lucide-react";
 import { useState } from "react";
@@ -12,17 +12,17 @@ const infoItems = [
   { id: 4, title: "Our goals", content: "To constantly explore, adopt, and utilize new technology in making every step closer to finding your perfect property." },
 ];
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
 };
 
-const slideIn = {
+const slideIn: Variants = {
   hidden: { opacity: 0, x: -50, scale: 0.95 },
   visible: { opacity: 1, x: 0, scale: 1, transition: { type: "spring", bounce: 0.3, duration: 1 } }
 };
 
-const scaleUp = {
+const scaleUp: Variants = {
   hidden: { opacity: 0, scale: 0.8, y: 50 },
   visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.3, duration: 1.2 } }
 };

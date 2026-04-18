@@ -34,6 +34,7 @@ export default function Preloader() {
     const timer = setTimeout(() => {
       setLoading(false);
       sessionStorage.setItem("preloader-shown", "true");
+      window.dispatchEvent(new Event("preloader-finished"));
     }, 3800); // Increased from 2500ms to allow for the slower sequence
 
     // Prevent scrolling while loading

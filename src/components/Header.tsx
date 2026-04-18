@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, User as UserIcon, LogOut, Heart, Calendar, CreditCard, Bell, Shield, MessageSquare } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut, Heart, Calendar, CreditCard, Bell, Shield, MessageSquare, Home } from "lucide-react";
 import NextImage from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +12,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isPreloading, setIsPreloading] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const pathname = usePathname();
 
@@ -20,7 +21,18 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Handle preloader
+    if (!sessionStorage.getItem("preloader-shown")) {
+      setIsPreloading(true);
+    }
+    const handlePreloaderFinished = () => setIsPreloading(false);
+    window.addEventListener("preloader-finished", handlePreloaderFinished);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("preloader-finished", handlePreloaderFinished);
+    };
   }, []);
 
   const navLinks = [
@@ -43,18 +55,25 @@ export default function Header() {
   const isHome = pathname === "/";
   const showSolidNav = isScrolled || !isHome;
 
+  if (isPreloading) return null;
+
   return (
     <header
       className={`fixed top-0 left-0 w-full z-[9999] transition-all duration-300 ${
         showSolidNav
-          ? "bg-white/90 backdrop-blur-md shadow-sm py-4"
+          ? "bg-[#013A37] shadow-sm py-4"
           : "bg-transparent py-6"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className={`text-2xl font-bold tracking-tight transition-colors ${showSolidNav ? 'text-primary' : 'text-white'}`}>
-          StayWell
+        <Link href="/" className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <Home size={20} />
+          </div>
+          <span className="text-2xl font-bold tracking-tight text-white transition-colors">
+            StayWell
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -67,7 +86,7 @@ export default function Header() {
                 href={link.href}
                 className={`text-sm font-medium transition-all group flex flex-col items-center hover:opacity-100 ${
                   showSolidNav 
-                    ? (isActive ? 'text-[#065f46] font-bold' : 'text-foreground hover:text-primary opacity-70') 
+                    ? (isActive ? 'text-emerald-400 font-bold' : 'text-white/80 hover:text-white') 
                     : (isActive ? 'text-white opacity-100 font-bold scale-110' : 'text-white/70 hover:opacity-100')
                 }`}
               >

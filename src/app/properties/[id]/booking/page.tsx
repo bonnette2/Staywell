@@ -8,7 +8,7 @@ import { ChevronLeft, CreditCard, Smartphone, CheckCircle, ShieldCheck, MapPin }
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   validateName, 
   validateEmail, 
@@ -22,8 +22,14 @@ import {
 export default function BookingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const [step, setStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState("momo");
+  const propertyPaymentMethods = ["momo", "card"]; // Mocked host selection
+  const [paymentMethod, setPaymentMethod] = useState(propertyPaymentMethods[0]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [nights, setNights] = useState(7);
+  
+  const propertyPricePerNight = 150;
+  const cleaningFee = 45;
+  const serviceFee = 120;
   
   // Property Title (derived from ID for now)
   const propertyTitle = id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -77,7 +83,17 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
 
   const today = new Date().toISOString().split("T")[0];
 
+  useEffect(() => {
+    if (formData.checkIn && formData.checkOut) {
+      const start = new Date(formData.checkIn);
+      const end = new Date(formData.checkOut);
+      const diffTime = end.getTime() - start.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      setNights(diffDays > 0 ? diffDays : 0);
+    }
+  }, [formData.checkIn, formData.checkOut]);
 
+  const totalAmount = (propertyPricePerNight * (nights || 1)) + cleaningFee + serviceFee;
   return (
     <>
       <Preloader />
@@ -184,125 +200,133 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                     <p className="text-sm text-zinc-500 font-medium mb-10">All payments are encrypted and secure.</p>
                     
                     <div className="space-y-4">
-                      <button 
-                        onClick={() => setPaymentMethod("momo")}
-                        className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center justify-between group ${
-                          paymentMethod === "momo" ? "border-primary bg-primary/5 shadow-inner" : "border-zinc-100 hover:border-zinc-200"
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`p-3 rounded-2xl ${paymentMethod === "momo" ? "bg-primary text-white" : "bg-zinc-100 text-zinc-500"}`}>
-                            <Smartphone size={24} />
-                          </div>
-                          <div className="text-left">
-                            <p className="font-bold text-zinc-800">Mobile Money (MoMo/Airtel)</p>
-                            <p className="text-xs text-zinc-500 font-medium">Safe & Quick payment in Rwanda</p>
-                          </div>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "momo" ? "border-primary bg-primary" : "border-zinc-200"
-                        }`}>
-                          {paymentMethod === "momo" && <div className="w-2 h-2 rounded-full bg-white" />}
-                        </div>
-                      </button>
+                      {propertyPaymentMethods.includes("momo") && (
+                        <>
+                          <button 
+                            onClick={() => setPaymentMethod("momo")}
+                            className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center justify-between group ${
+                              paymentMethod === "momo" ? "border-primary bg-primary/5 shadow-inner" : "border-zinc-100 hover:border-zinc-200"
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`p-3 rounded-2xl ${paymentMethod === "momo" ? "bg-primary text-white" : "bg-zinc-100 text-zinc-500"}`}>
+                                <Smartphone size={24} />
+                              </div>
+                              <div className="text-left">
+                                <p className="font-bold text-zinc-800">Mobile Money (MoMo/Airtel)</p>
+                                <p className="text-xs text-zinc-500 font-medium">Safe & Quick payment in Rwanda</p>
+                              </div>
+                            </div>
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                              paymentMethod === "momo" ? "border-primary bg-primary" : "border-zinc-200"
+                            }`}>
+                              {paymentMethod === "momo" && <div className="w-2 h-2 rounded-full bg-white" />}
+                            </div>
+                          </button>
 
-                      {paymentMethod === "momo" && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="px-6 pb-6 pt-2">
-                           <div className="flex flex-col gap-3">
-                              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Phone Number</label>
-                              <input 
-                                type="tel" 
-                                placeholder="+250 78X XXX XXX" 
-                                value={formData.momoNumber}
-                                onChange={(e) => handleInputChange("momoNumber", e.target.value)}
-                                className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 shadow-inner ${
-                                  errors.momoNumber ? "border-red-500" : formData.momoNumber && !errors.momoNumber ? "border-green-500" : "border-zinc-100"
-                                }`}
-                              />
-                              {errors.momoNumber && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.momoNumber}</span>}
-                           </div>
-                        </motion.div>
+                          {paymentMethod === "momo" && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="px-6 pb-6 pt-2">
+                               <div className="flex flex-col gap-3">
+                                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Phone Number</label>
+                                  <input 
+                                    type="tel" 
+                                    placeholder="+250 78X XXX XXX" 
+                                    value={formData.momoNumber}
+                                    onChange={(e) => handleInputChange("momoNumber", e.target.value)}
+                                    className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 shadow-inner ${
+                                      errors.momoNumber ? "border-red-500" : formData.momoNumber && !errors.momoNumber ? "border-green-500" : "border-zinc-100"
+                                    }`}
+                                  />
+                                  {errors.momoNumber && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.momoNumber}</span>}
+                               </div>
+                            </motion.div>
+                          )}
+                        </>
                       )}
 
-                      <button 
-                        onClick={() => setPaymentMethod("card")}
-                        className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center justify-between group ${
-                          paymentMethod === "card" ? "border-primary bg-primary/5 shadow-inner" : "border-zinc-100 hover:border-zinc-200"
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`p-3 rounded-2xl ${paymentMethod === "card" ? "bg-primary text-white" : "bg-zinc-100 text-zinc-500"}`}>
-                            <CreditCard size={24} />
-                          </div>
-                          <div className="text-left">
-                            <p className="font-bold text-zinc-800">Credit or Debit Card</p>
-                            <p className="text-xs text-zinc-500 font-medium">Visa, Mastercard, Amex</p>
-                          </div>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "card" ? "border-primary bg-primary" : "border-zinc-200"
-                        }`}>
-                          {paymentMethod === "card" && <div className="w-2 h-2 rounded-full bg-white" />}
-                        </div>
-                      </button>
+                      {propertyPaymentMethods.includes("card") && (
+                        <>
+                          <button 
+                            onClick={() => setPaymentMethod("card")}
+                            className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center justify-between group ${
+                              paymentMethod === "card" ? "border-primary bg-primary/5 shadow-inner" : "border-zinc-100 hover:border-zinc-200"
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`p-3 rounded-2xl ${paymentMethod === "card" ? "bg-primary text-white" : "bg-zinc-100 text-zinc-500"}`}>
+                                <CreditCard size={24} />
+                              </div>
+                              <div className="text-left">
+                                <p className="font-bold text-zinc-800">Credit or Debit Card</p>
+                                <p className="text-xs text-zinc-500 font-medium">Visa, Mastercard, Amex</p>
+                              </div>
+                            </div>
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                              paymentMethod === "card" ? "border-primary bg-primary" : "border-zinc-200"
+                            }`}>
+                              {paymentMethod === "card" && <div className="w-2 h-2 rounded-full bg-white" />}
+                            </div>
+                          </button>
 
-                      {paymentMethod === "card" && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="px-6 pb-6 pt-2 space-y-4">
-                           <div className="flex flex-col gap-3">
-                              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Name on Card</label>
-                              <input 
-                                type="text" 
-                                placeholder="John Doe" 
-                                value={formData.cardName}
-                                onChange={(e) => handleInputChange("cardName", e.target.value)}
-                                className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 shadow-inner ${
-                                  errors.cardName ? "border-red-500" : formData.cardName && !errors.cardName ? "border-green-500" : "border-zinc-100"
-                                }`}
-                              />
-                              {errors.cardName && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.cardName}</span>}
-                           </div>
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="flex flex-col gap-3">
-                                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Card Number</label>
-                                <input 
-                                  type="text" 
-                                  placeholder="XXXX XXXX XXXX XXXX" 
-                                  value={formData.cardNumber}
-                                  onChange={(e) => handleInputChange("cardNumber", e.target.value)}
-                                  className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner ${
-                                    errors.cardNumber ? "border-red-500" : formData.cardNumber && !errors.cardNumber ? "border-green-500" : "border-zinc-100"
-                                  }`}
-                                />
-                                {errors.cardNumber && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.cardNumber}</span>}
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-3">
-                                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Expiry</label>
+                          {paymentMethod === "card" && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="px-6 pb-6 pt-2 space-y-4">
+                               <div className="flex flex-col gap-3">
+                                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Name on Card</label>
                                   <input 
                                     type="text" 
-                                    placeholder="MM/YY" 
-                                    value={formData.expiry}
-                                    onChange={(e) => handleInputChange("expiry", e.target.value)}
-                                    className={`w-full px-4 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner ${
-                                      errors.expiry ? "border-red-500" : formData.expiry && !errors.expiry ? "border-green-500" : "border-zinc-100"
+                                    placeholder="John Doe" 
+                                    value={formData.cardName}
+                                    onChange={(e) => handleInputChange("cardName", e.target.value)}
+                                    className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 shadow-inner ${
+                                      errors.cardName ? "border-red-500" : formData.cardName && !errors.cardName ? "border-green-500" : "border-zinc-100"
                                     }`}
                                   />
-                                </div>
-                                <div className="flex flex-col gap-3">
-                                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">CVC/CVV</label>
-                                  <input 
-                                    type="text" 
-                                    placeholder="123" 
-                                    value={formData.cvv}
-                                    onChange={(e) => handleInputChange("cvv", e.target.value)}
-                                    className={`w-full px-4 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner ${
-                                      errors.cvv ? "border-red-500" : formData.cvv && !errors.cvv ? "border-green-500" : "border-zinc-100"
-                                    }`}
-                                  />
-                                </div>
-                              </div>
-                           </div>
-                        </motion.div>
+                                  {errors.cardName && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.cardName}</span>}
+                               </div>
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="flex flex-col gap-3">
+                                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Card Number</label>
+                                    <input 
+                                      type="text" 
+                                      placeholder="XXXX XXXX XXXX XXXX" 
+                                      value={formData.cardNumber}
+                                      onChange={(e) => handleInputChange("cardNumber", e.target.value)}
+                                      className={`w-full px-6 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner ${
+                                        errors.cardNumber ? "border-red-500" : formData.cardNumber && !errors.cardNumber ? "border-green-500" : "border-zinc-100"
+                                      }`}
+                                    />
+                                    {errors.cardNumber && <span className="text-[10px] font-bold text-red-500 ml-1">{errors.cardNumber}</span>}
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-3">
+                                      <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Expiry</label>
+                                      <input 
+                                        type="text" 
+                                        placeholder="MM/YY" 
+                                        value={formData.expiry}
+                                        onChange={(e) => handleInputChange("expiry", e.target.value)}
+                                        className={`w-full px-4 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner ${
+                                          errors.expiry ? "border-red-500" : formData.expiry && !errors.expiry ? "border-green-500" : "border-zinc-100"
+                                        }`}
+                                      />
+                                    </div>
+                                    <div className="flex flex-col gap-3">
+                                      <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">CVC/CVV</label>
+                                      <input 
+                                        type="text" 
+                                        placeholder="123" 
+                                        value={formData.cvv}
+                                        onChange={(e) => handleInputChange("cvv", e.target.value)}
+                                        className={`w-full px-4 py-4 bg-zinc-50 border transition-all rounded-2xl text-sm font-bold shadow-inner ${
+                                          errors.cvv ? "border-red-500" : formData.cvv && !errors.cvv ? "border-green-500" : "border-zinc-100"
+                                        }`}
+                                      />
+                                    </div>
+                                  </div>
+                               </div>
+                            </motion.div>
+                          )}
+                        </>
                       )}
                     </div>
 
@@ -386,7 +410,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                             : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
                         }`}
                       >
-                        Confirm and Pay $1,215
+                        Confirm and Pay ${totalAmount.toLocaleString()}
                       </button>
                     </div>
                   </div>
@@ -454,23 +478,23 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 <div className="py-8 space-y-4">
                   <h5 className="font-black text-lg text-zinc-900 tracking-tight">Price details</h5>
                   <div className="flex justify-between text-sm font-medium text-zinc-500">
-                    <span className="font-bold text-zinc-600">$150 x 7 nights</span>
-                    <span className="font-black text-zinc-900">$1,050</span>
+                    <span className="font-bold text-zinc-600">${propertyPricePerNight} x {nights || 1} nights</span>
+                    <span className="font-black text-zinc-900">${(propertyPricePerNight * (nights || 1)).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm font-medium text-zinc-500">
                     <span className="font-bold text-zinc-600">Cleaning fee</span>
-                    <span className="font-black text-zinc-900">$45</span>
+                    <span className="font-black text-zinc-900">${cleaningFee}</span>
                   </div>
                   <div className="flex justify-between text-sm font-medium text-zinc-500">
                     <span className="font-bold text-zinc-600">StayWell service fee</span>
-                    <span className="font-black text-zinc-900">$120</span>
+                    <span className="font-black text-zinc-900">${serviceFee}</span>
                   </div>
                 </div>
 
                 <div className="pt-8 bg-zinc-50 -mx-8 px-8 rounded-b-[2.5rem]">
                   <div className="flex justify-between items-center pb-8">
                      <span className="text-lg font-black text-zinc-900">Total (USD)</span>
-                     <span className="text-3xl font-black text-primary">$1,215</span>
+                     <span className="text-3xl font-black text-primary">${totalAmount.toLocaleString()}</span>
                   </div>
                   <div className="pb-8 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-zinc-100 shadow-sm">
                     <MapPin size={16} className="text-primary" />

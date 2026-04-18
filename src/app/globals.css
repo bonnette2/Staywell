@@ -14,7 +14,7 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
-  --font-sans: var(--font-outfit), Arial, sans-serif;
+  --font-sans: var(--font-poppins), Arial, sans-serif;
 }
 
 body {
