@@ -102,7 +102,7 @@ export default function PropertySidebar({ propertyTitle = "Luxury Villa" }: Prop
           href={isAuthenticated ? "/messages" : "/login"}
           className={`w-full py-5 rounded-3xl font-bold transition-all shadow-lg shadow-primary/20 scale-[0.98] hover:scale-100 flex items-center justify-center ${
             isAuthenticated 
-              ? "bg-primary hover:bg-[#064e3b] text-white" 
+              ? "bg-primary hover:bg-[#001a17] text-white" 
               : "bg-zinc-100 text-zinc-400 cursor-not-allowed border border-zinc-200 shadow-none"
           }`}
         >
@@ -242,7 +242,7 @@ export default function PropertySidebar({ propertyTitle = "Luxury Villa" }: Prop
             }}
             className={`w-full py-5 text-white rounded-3xl font-bold transition-all shadow-lg mt-4 flex items-center justify-center ${
               Object.values(errors).every(e => e === null) && Object.values(formData).every(v => v !== "")
-              ? "bg-primary hover:bg-[#064e3b] shadow-primary/20 scale-100 active:scale-95"
+              ? "bg-primary hover:bg-[#001a17] shadow-primary/20 scale-100 active:scale-95"
               : "bg-zinc-300 cursor-not-allowed opacity-70"
             }`}
           >

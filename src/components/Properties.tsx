@@ -80,8 +80,8 @@ export default function Properties() {
           </div>
           <motion.div variants={slideUp}>
             <Link
-              href="#"
-              className="inline-flex items-center justify-center px-8 py-4 bg-[#064e3b] hover:bg-[#065f46] shadow-[0_8px_30px_rgb(6,78,59,0.3)] hover:shadow-[0_8px_30px_rgb(6,78,59,0.5)] hover:-translate-y-0.5 text-white rounded-full font-bold transition-all sm:w-auto w-full group"
+              href="/properties"
+              className="inline-flex items-center justify-center px-8 py-4 bg-[#002521] hover:bg-[#001a17] shadow-[0_8px_30px_rgb(0,37,33,0.3)] hover:shadow-[0_8px_30px_rgb(0,37,33,0.5)] hover:-translate-y-0.5 text-white rounded-full font-bold transition-all sm:w-auto w-full group"
             >
               View All properties
             </Link>

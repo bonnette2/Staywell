@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useBookingStore } from "@/store/useBookingStore";
 import { 
   Search, 
   CalendarMinus,
@@ -30,6 +31,7 @@ import {
 import Image from "next/image";
 
 export default function BookingsPage() {
+  const { bookings, updateBookingStatus } = useBookingStore();
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState("Guest Information");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,39 +42,38 @@ export default function BookingsPage() {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
-  const initialBookings = [
-    { id: 1, guest: "Sarah Johnson", property: "Luxury Villa Kigali", arrival: "2025-07-12", departure: "2025-07-15", status: "Confirmed" },
-    { id: 2, guest: "Michael Jen", property: "Luxury Villa Kigali", arrival: "2025-07-16", departure: "2025-07-20", status: "Pending" },
-    { id: 3, guest: "Emma wilson", property: "Luxury Villa Kigali", arrival: "2025-07-22", departure: "2025-07-25", status: "Confirmed" },
-    { id: 4, guest: "David brown", property: "Luxury Villa Kigali", arrival: "2025-08-01", departure: "2025-08-05", status: "Rejected" },
-    { id: 5, guest: "Lisa anderson", property: "Luxury Villa Kigali", arrival: "2025-08-10", departure: "2025-08-15", status: "Pending" },
-    { id: 6, guest: "Emma wilson", property: "Luxury Villa Kigali", arrival: "2025-08-20", departure: "2025-08-25", status: "Confirmed" },
-    { id: 7, guest: "Michael Jen", property: "Luxury Villa Kigali", arrival: "2025-09-01", departure: "2025-09-05", status: "Confirmed" },
-    { id: 8, guest: "Sarah Johnson", property: "Luxury Villa Kigali", arrival: "2025-09-10", departure: "2025-09-15", status: "Pending" },
-  ];
+  const sortedBookings = useMemo(() => {
+    return [...bookings].sort((a, b) => {
+      const dateA = new Date(a.arrival).getTime();
+      const dateB = new Date(b.arrival).getTime();
+      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+  }, [bookings, sortOrder]);
 
-  const [allBookings, setAllBookings] = useState(initialBookings);
+  const filteredBookings = useMemo(() => {
+    return sortedBookings.filter(booking => {
+      const matchesSearch = booking.guest.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           booking.property.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "All" || booking.status.toLowerCase() === statusFilter.toLowerCase();
+      
+      let matchesDate = true;
+      if (dateRange.start && dateRange.end) {
+        const arrival = new Date(booking.arrival);
+        const start = new Date(dateRange.start);
+        const end = new Date(dateRange.end);
+        matchesDate = arrival >= start && arrival <= end;
+      } else if (dateRange.start) {
+        const arrival = new Date(booking.arrival);
+        const start = new Date(dateRange.start);
+        matchesDate = arrival.toDateString() === start.toDateString();
+      }
 
-  const filteredBookings = allBookings.filter(booking => {
-    const matchesSearch = booking.guest.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         booking.property.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "All" || booking.status.toLowerCase() === statusFilter.toLowerCase();
-    
-    let matchesDate = true;
-    if (dateRange.start && dateRange.end) {
-      const arrival = new Date(booking.arrival);
-      const start = new Date(dateRange.start);
-      const end = new Date(dateRange.end);
-      matchesDate = arrival >= start && arrival <= end;
-    } else if (dateRange.start) {
-      const arrival = new Date(booking.arrival);
-      const start = new Date(dateRange.start);
-      matchesDate = arrival.toDateString() === start.toDateString();
-    }
-
-    return matchesSearch && matchesStatus && matchesDate;
-  });
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [sortedBookings, searchQuery, statusFilter, dateRange]);
 
   const handleActionClick = (booking: any) => {
     setSelectedBooking(booking);
@@ -98,7 +99,9 @@ export default function BookingsPage() {
 
   const executeStatusUpdate = (id: number | number[], newStatus: string) => {
     const ids = Array.isArray(id) ? id : [id];
-    setAllBookings(prev => prev.map(b => ids.includes(b.id) ? { ...b, status: newStatus } : b));
+    ids.forEach(idToUpdate => {
+      updateBookingStatus(idToUpdate, newStatus as any);
+    });
     
     if (selectedBooking && ids.includes(selectedBooking.id)) {
       setSelectedBooking({ ...selectedBooking, status: newStatus });
@@ -147,12 +150,12 @@ export default function BookingsPage() {
               <svg className="absolute inset-0 w-[60px] h-[60px] -rotate-90">
                 <circle cx="30" cy="30" r="26" fill="none" stroke="#F1F5F9" strokeWidth="4" />
                 <circle 
-                  cx="30" cy="30" r="26" fill="none" stroke="#005244" strokeWidth="4" 
+                  cx="30" cy="30" r="26" fill="none" stroke="#002521" strokeWidth="4" 
                   strokeDasharray="163" strokeDashoffset={i === 3 ? "60" : "30"} strokeLinecap="round"
                 />
               </svg>
               <div className="absolute inset-[6px] bg-white rounded-full shadow-md flex items-center justify-center border border-zinc-50">
-                <stat.icon size={20} className="text-[#005244]" />
+                <stat.icon size={20} className="text-[#002521]" />
               </div>
             </div>
 
@@ -160,8 +163,8 @@ export default function BookingsPage() {
               <p className="text-[12px] font-bold text-zinc-900 mb-2 leading-tight">{stat.label}</p>
               <div className="flex items-center flex-wrap gap-2">
                 <span className="text-2xl font-extrabold text-zinc-900 leading-none">{stat.value}</span>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-[#005244] whitespace-nowrap mt-1">
-                  <TrendingUp size={10} className="text-[#005244]" />
+                <div className="flex items-center gap-1 text-[10px] font-bold text-[#002521] whitespace-nowrap mt-1">
+                  <TrendingUp size={10} className="text-[#002521]" />
                   <span>~ {stat.trend}</span>
                   <span className="text-zinc-400 font-medium font-normal">This month</span>
                 </div>
@@ -181,7 +184,7 @@ export default function BookingsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             suppressHydrationWarning
-            className="w-full bg-white border border-zinc-200/80 rounded-lg py-2.5 pl-10 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all placeholder:text-zinc-400 shadow-sm"
+            className="w-full bg-white border border-zinc-200/80 rounded-lg py-2.5 pl-10 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all placeholder:text-zinc-400 shadow-sm"
           />
         </div>
 
@@ -237,7 +240,7 @@ export default function BookingsPage() {
                     </div>
                     <button 
                       onClick={() => setShowDatePicker(false)}
-                      className="w-full bg-[#0F3D2E] text-white py-2 rounded-lg text-sm font-bold"
+                      className="w-full bg-[#002521] text-white py-2 rounded-lg text-sm font-bold"
                     >
                       Apply Filter
                     </button>
@@ -262,17 +265,28 @@ export default function BookingsPage() {
           </div>
 
           <div className="relative">
-            <button className="flex items-center gap-6 bg-white border border-zinc-200/80 px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-zinc-700 w-36 justify-between">
-              Newest
-              <ChevronDown size={16} className="text-zinc-400" />
-            </button>
+            <select 
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
+              className="flex items-center gap-6 bg-white border border-zinc-200/80 px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-zinc-700 w-36 appearance-none outline-none pr-10"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
           </div>
 
           <div className="flex items-center gap-1 bg-white border border-zinc-200/80 p-1 rounded-lg shadow-sm">
-            <button className="p-1.5 rounded-md hover:bg-zinc-100 text-zinc-700 transition">
+            <button 
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-md transition ${viewMode === "grid" ? "bg-zinc-100 text-zinc-900 shadow-sm" : "hover:bg-zinc-50 text-zinc-400"}`}
+            >
               <LayoutGrid size={18} />
             </button>
-            <button className="p-1.5 rounded-md bg-zinc-100/80 text-zinc-900 transition">
+            <button 
+              onClick={() => setViewMode("list")}
+              className={`p-1.5 rounded-md transition ${viewMode === "list" ? "bg-zinc-100 text-zinc-900 shadow-sm" : "hover:bg-zinc-50 text-zinc-400"}`}
+            >
               <List size={18} />
             </button>
           </div>
@@ -288,10 +302,10 @@ export default function BookingsPage() {
             exit={{ height: 0, opacity: 0, marginBottom: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-[#0F3D2E]/5 border border-[#0F3D2E]/20 p-4 rounded-xl flex items-center justify-between shadow-sm">
+            <div className="bg-[#002521]/5 border border-[#002521]/20 p-4 rounded-xl flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-4">
-                <span className="text-sm font-bold text-[#0F3D2E]">{selectedIds.length} Bookings selected</span>
-                <div className="h-4 w-[1px] bg-[#0F3D2E]/20" />
+                <span className="text-sm font-bold text-[#002521]">{selectedIds.length} Bookings selected</span>
+                <div className="h-4 w-[1px] bg-[#002521]/20" />
                 <button 
                   onClick={() => setSelectedIds([])}
                   className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 transition"
@@ -318,95 +332,197 @@ export default function BookingsPage() {
         )}
       </AnimatePresence>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-zinc-100 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
-          <thead>
-            <tr className="bg-[#0F3D2E] text-white">
-              <th className="p-5 w-14 text-center border-b border-[#0F3D2E]">
-                <button 
-                  onClick={toggleSelectAll}
-                  className="text-white/60 hover:text-white transition-colors"
-                >
-                  {selectedIds.length === filteredBookings.length && filteredBookings.length > 0 ? <CheckSquare size={18} className="text-white"/> : <Square size={18}/>}
-                </button>
-              </th>
-              <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Guest Name</th>
-              <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Property</th>
-              <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Arrival</th>
-              <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Departure</th>
-              <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E] text-center">Status</th>
-              <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E] text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100/80">
-            {filteredBookings.map((booking, i) => (
-              <tr 
-                key={booking.id} 
-                className={`transition-all hover:bg-zinc-50 ${
-                  selectedIds.includes(booking.id) ? 'bg-[#0F3D2E]/5 hover:bg-[#0F3D2E]/10' : (i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50')
-                }`}
+      <AnimatePresence mode="wait">
+        {viewMode === "list" ? (
+          <motion.div 
+            key="list-view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-white rounded-xl border border-zinc-100 overflow-hidden shadow-sm"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-[#002521] text-white">
+                    <th className="p-5 w-14 text-center border-b border-[#0F3D2E]">
+                      <button 
+                        onClick={toggleSelectAll}
+                        className="text-white/60 hover:text-white transition-colors"
+                      >
+                        {selectedIds.length === filteredBookings.length && filteredBookings.length > 0 ? <CheckSquare size={18} className="text-white"/> : <Square size={18}/>}
+                      </button>
+                    </th>
+                    <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Guest Name</th>
+                    <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Property</th>
+                    <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Arrival</th>
+                    <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E]">Departure</th>
+                    <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E] text-center">Status</th>
+                    <th className="p-5 text-[12px] font-semibold tracking-wide border-b border-[#0F3D2E] text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100/80">
+                  {filteredBookings.map((booking, i) => (
+                    <tr 
+                      key={booking.id} 
+                      className={`transition-all hover:bg-zinc-50 ${
+                        selectedIds.includes(booking.id) ? 'bg-[#0F3D2E]/5 hover:bg-[#0F3D2E]/10' : (i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50')
+                      }`}
+                    >
+                      <td className="p-4 text-center">
+                        <button 
+                          onClick={() => toggleSelect(booking.id)}
+                          className="text-zinc-400 hover:text-[#002521] transition-colors"
+                        >
+                          {selectedIds.includes(booking.id) ? <CheckSquare size={18} className="text-[#002521]"/> : <Square size={18}/>}
+                        </button>
+                      </td>
+                      <td className="p-4 text-[13px] font-semibold text-zinc-900">{booking.guest}</td>
+                      <td className="p-4 text-[13px] font-medium text-zinc-500">{booking.property}</td>
+                      <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.arrival}</td>
+                      <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.departure}</td>
+                      <td className="p-4 text-center">
+                        <span className={`inline-block px-4 py-1.5 rounded-md text-[11px] font-bold tracking-wide ${
+                          booking.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-600' :
+                          booking.status === 'Rejected' ? 'bg-red-50 text-red-600' :
+                          'bg-zinc-100 text-zinc-600'
+                        }`}>
+                          {booking.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center relative group">
+                        <div className="flex items-center justify-center gap-2">
+                          <button 
+                            onClick={() => handleActionClick(booking)}
+                            className="p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-md transition"
+                            title="View Details"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button 
+                            onClick={() => setConfirmAction({ id: booking.id, status: "Confirmed", type: "single" })}
+                            className="p-1.5 text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition"
+                            title="Approve"
+                          >
+                            <CheckCircle2 size={16} />
+                          </button>
+                          <button 
+                            onClick={() => setConfirmAction({ id: booking.id, status: "Rejected", type: "single" })}
+                            className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition"
+                            title="Reject"
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredBookings.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="p-20 text-center text-zinc-400 font-medium italic">
+                        No bookings found matching your filters.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="grid-view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            {filteredBookings.map((booking) => (
+              <div 
+                key={booking.id}
+                className="bg-white rounded-xl border border-zinc-100 overflow-hidden shadow-sm hover:shadow-md transition-all group flex flex-col"
               >
-                <td className="p-4 text-center">
-                  <button 
-                    onClick={() => toggleSelect(booking.id)}
-                    className="text-zinc-400 hover:text-[#0F3D2E] transition-colors"
-                  >
-                    {selectedIds.includes(booking.id) ? <CheckSquare size={18} className="text-[#0F3D2E]"/> : <Square size={18}/>}
-                  </button>
-                </td>
-                <td className="p-4 text-[13px] font-semibold text-zinc-900">{booking.guest}</td>
-                <td className="p-4 text-[13px] font-medium text-zinc-500">{booking.property}</td>
-                <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.arrival}</td>
-                <td className="p-4 text-[13px] font-medium text-zinc-700">{booking.departure}</td>
-                <td className="p-4 text-center">
-                  <span className={`inline-block px-4 py-1.5 rounded-md text-[11px] font-bold tracking-wide ${
-                    booking.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-600' :
-                    booking.status === 'Rejected' ? 'bg-red-50 text-red-600' :
-                    'bg-zinc-100 text-zinc-600'
-                  }`}>
-                    {booking.status}
-                  </span>
-                </td>
-                <td className="p-4 text-center relative group">
-                  <div className="flex items-center justify-center gap-2">
+                <div className="h-44 relative overflow-hidden">
+                   <Image 
+                     src={`https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop`}
+                     fill
+                     sizes="400px"
+                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                     alt={booking.property}
+                   />
+                   <div className="absolute top-3 left-3">
+                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                        booking.status === 'Confirmed' ? 'bg-emerald-500 text-white' :
+                        booking.status === 'Rejected' ? 'bg-red-500 text-white' :
+                        'bg-zinc-800 text-white'
+                      }`}>
+                        {booking.status}
+                      </span>
+                   </div>
+                   <button 
+                     onClick={() => toggleSelect(booking.id)}
+                     className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/90 text-zinc-900 border border-zinc-200/50 backdrop-blur shadow-sm hover:bg-white transition"
+                   >
+                     {selectedIds.includes(booking.id) ? <CheckSquare size={16} className="text-[#002521]"/> : <Square size={16}/>}
+                   </button>
+                </div>
+                
+                <div className="p-5 flex-1 flex flex-col space-y-4">
+                  <div>
+                    <h4 className="text-sm font-extrabold text-zinc-900 line-clamp-1 mb-1">{booking.property}</h4>
+                    <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{booking.guest}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 border-y border-zinc-50 py-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Arrival</p>
+                      <p className="text-xs font-bold text-zinc-800">{booking.arrival}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Departure</p>
+                      <p className="text-xs font-bold text-zinc-800">{booking.departure}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-1">
                     <button 
                       onClick={() => handleActionClick(booking)}
-                      className="p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-md transition"
-                      title="View Details"
+                      className="flex-1 py-2 bg-zinc-900 text-white rounded-lg text-xs font-bold hover:bg-zinc-800 transition"
                     >
-                      <Eye size={16} />
+                      View Details
                     </button>
-                    <button 
-                      onClick={() => setConfirmAction({ id: booking.id, status: "Confirmed", type: "single" })}
-                      className="p-1.5 text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition"
-                      title="Approve"
-                    >
-                      <CheckCircle2 size={16} />
-                    </button>
-                    <button 
-                      onClick={() => setConfirmAction({ id: booking.id, status: "Rejected", type: "single" })}
-                      className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition"
-                      title="Reject"
-                    >
-                      <XCircle size={16} />
-                    </button>
+                    <div className="flex gap-1">
+                       <button 
+                         onClick={() => setConfirmAction({ id: booking.id, status: "Confirmed", type: "single" })}
+                         className="p-2 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 hover:bg-emerald-100 transition"
+                       >
+                         <CheckCircle2 size={16} />
+                       </button>
+                       <button 
+                         onClick={() => setConfirmAction({ id: booking.id, status: "Rejected", type: "single" })}
+                         className="p-2 bg-red-50 text-red-600 rounded-lg border border-red-100 hover:bg-red-100 transition"
+                       >
+                         <XCircle size={16} />
+                       </button>
+                    </div>
                   </div>
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            {filteredBookings.length === 0 && (
+              <div className="col-span-full p-20 text-center text-zinc-400 font-medium italic">
+                No bookings found matching your filters.
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Pagination */}
       <div className="flex items-center justify-between pt-4">
-        <span className="text-[13px] font-semibold text-zinc-600">Showing 1 to 4 of 247 results</span>
+        <span className="text-[13px] font-semibold text-zinc-600">Showing {filteredBookings.length} results</span>
         <div className="flex items-center gap-2">
           <button className="px-4 py-1.5 rounded border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 bg-white">Previous</button>
-          <button className="w-8 h-8 rounded bg-[#0F3D2E] text-white text-sm font-semibold flex items-center justify-center">1</button>
+          <button className="w-8 h-8 rounded bg-[#002521] text-white text-sm font-semibold flex items-center justify-center">1</button>
           <button className="w-8 h-8 rounded border border-zinc-200 text-sm font-semibold text-zinc-600 bg-white flex items-center justify-center">2</button>
           <button className="px-4 py-1.5 rounded border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 bg-white">Next</button>
         </div>
@@ -431,7 +547,7 @@ export default function BookingsPage() {
               className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Modal Header */}
-              <div className="bg-[#0F3D2E] text-white px-8 py-5 flex items-center justify-between">
+              <div className="bg-[#002521] text-white px-8 py-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-bold">View Booking details</h2>
                 </div>
@@ -450,7 +566,7 @@ export default function BookingsPage() {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`pb-4 px-2 text-[14px] font-bold transition-all relative ${
-                      activeTab === tab ? "text-[#0F3D2E]" : "text-zinc-500 hover:text-zinc-700"
+                      activeTab === tab ? "text-[#002521]" : "text-zinc-500 hover:text-zinc-700"
                     }`}
                   >
                     {tab}
@@ -615,7 +731,7 @@ export default function BookingsPage() {
                       </div>
                       
                       <div className="py-6 border-b border-zinc-100 flex justify-between items-center">
-                        <div className="font-extrabold text-[#0F3D2E]">Total Amounts</div>
+                        <div className="font-extrabold text-[#002521]">Total Amounts</div>
                         <div className="font-black text-emerald-600 text-lg">RWF 150,000</div>
                       </div>
 

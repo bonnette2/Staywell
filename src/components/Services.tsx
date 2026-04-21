@@ -50,7 +50,7 @@ export default function Services() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Large Card */}
           <motion.div variants={scaleIn} whileHover={{ scale: 1.02 }} className="h-full">
-            <Link href="#" className="relative group rounded-3xl overflow-hidden h-[400px] md:h-[600px] block w-full">
+            <Link href="/properties" className="relative group rounded-3xl overflow-hidden h-[400px] md:h-[600px] block w-full">
               <Image
                 src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
                 alt="Properties Hosting"
@@ -60,7 +60,7 @@ export default function Services() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 w-full p-8 flex items-center justify-between z-10">
                 <h3 className="text-white text-2xl font-bold tracking-wide">Properties Hosting</h3>
-                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#064e3b] group-hover:text-white transition-colors duration-300 shadow-xl">
+                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#002521] group-hover:text-white transition-colors duration-300 shadow-xl">
                   <ArrowRight size={22} className="group-hover:-rotate-45 transition-transform duration-300" />
                 </div>
               </div>
@@ -71,7 +71,7 @@ export default function Services() {
           <div className="flex flex-col gap-6 h-[400px] md:h-[600px]">
             {/* Top Stacked Card */}
             <motion.div variants={fadeUp} whileHover={{ scale: 1.02, y: -5 }} className="h-full">
-              <Link href="#" className="relative group rounded-3xl overflow-hidden h-full block">
+              <Link href="/properties" className="relative group rounded-3xl overflow-hidden h-full block">
                 <Image
                   src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop"
                   alt="Property Booking"
@@ -81,7 +81,7 @@ export default function Services() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 w-full p-8 flex items-center justify-between z-10">
                   <h3 className="text-white text-2xl font-bold tracking-wide">Property Booking</h3>
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#064e3b] group-hover:text-white transition-colors duration-300 shadow-xl">
+                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#002521] group-hover:text-white transition-colors duration-300 shadow-xl">
                     <ArrowRight size={22} className="group-hover:-rotate-45 transition-transform duration-300" />
                   </div>
                 </div>
@@ -90,7 +90,7 @@ export default function Services() {
 
             {/* Bottom Stacked Card */}
             <motion.div variants={fadeUp} whileHover={{ scale: 1.02, y: -5 }} className="h-full">
-              <Link href="#" className="relative group rounded-3xl overflow-hidden h-full block">
+              <Link href="/properties" className="relative group rounded-3xl overflow-hidden h-full block">
                 <Image
                   src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2070&auto=format&fit=crop"
                   alt="Guest experience"
@@ -100,7 +100,7 @@ export default function Services() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 w-full p-8 flex items-center justify-between z-10">
                   <h3 className="text-white text-2xl font-bold tracking-wide">Guest experience</h3>
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#064e3b] group-hover:text-white transition-colors duration-300 shadow-xl">
+                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#002521] group-hover:text-white transition-colors duration-300 shadow-xl">
                     <ArrowRight size={22} className="group-hover:-rotate-45 transition-transform duration-300" />
                   </div>
                 </div>

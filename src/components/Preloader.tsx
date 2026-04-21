@@ -59,7 +59,7 @@ export default function Preloader() {
             opacity: 0,
             transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1], delay: 0.1 }
           }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white overflow-hidden pointer-events-auto"
+          className="fixed inset-0 z-[999999] flex items-center justify-center bg-white overflow-hidden pointer-events-auto"
         >
           {/* Main sequence */}
           <div className="relative w-full h-full flex items-center justify-center">
@@ -108,7 +108,7 @@ export default function Preloader() {
               transition: { duration: 0.5, ease: [0.76, 0, 0.24, 1] }
             }}
             style={{ originY: 1 }}
-            className="absolute inset-0 bg-[#064e3b] z-[60] pointer-events-none"
+            className="absolute inset-0 bg-[#002521] z-[60] pointer-events-none"
           />
         </motion.div>
       )}

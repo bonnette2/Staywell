@@ -17,7 +17,7 @@ const slideUpExtreme = {
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#052e22] text-white pt-72 pb-12 mt-64">
+    <footer className="relative bg-[#002521] text-white pt-72 pb-64 mt-64">
       <motion.div 
         variants={footerStagger}
         initial="hidden"
@@ -26,7 +26,7 @@ export default function Footer() {
       >
         {/* Background huge text layer - scoped so it hides overflow but doesn't clip CTA */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <h1 className="absolute bottom-[-10%] md:bottom-[-20%] left-0 text-[150px] md:text-[250px] lg:text-[350px] font-black text-center text-white/5 tracking-tighter w-full block">
+          <h1 className="absolute bottom-[-15%] left-0 text-[150px] md:text-[250px] lg:text-[350px] font-black text-center text-white/5 tracking-tighter w-full block">
             StayWell
           </h1>
         </div>
@@ -47,8 +47,8 @@ export default function Footer() {
               You are a part of a global user pool. StayWell brings thousands of properties everywhere.
             </p>
             <Link
-              href="#"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#065f46] hover:bg-[#064e3b] text-white rounded-full font-bold transition-transform shadow-lg hover:scale-105"
+              href="/properties"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#002521] hover:bg-[#001a17] text-white rounded-full font-bold transition-transform shadow-lg hover:scale-105 border border-white/10"
             >
               Get started <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"><ArrowRight size={14}/></div>
             </Link>
@@ -109,20 +109,18 @@ export default function Footer() {
               <p className="text-[#a7b5b0] text-sm leading-relaxed">
                 signup for latest updates on our platform
               </p>
-              <div className="w-full relative">
+              <div className="w-full relative flex items-center">
                 <input 
                   type="email" 
                   placeholder="Enter Your Email" 
-                  className="w-full bg-[#0a3f2f] border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-white placeholder:text-[#a7b5b0]/50"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-[#a7b5b0]/50"
                   suppressHydrationWarning
                 />
+                <button className="absolute right-2 px-6 py-2.5 bg-white text-[#002521] rounded-lg text-sm font-bold hover:bg-zinc-100 transition-all">
+                  Subscribe
+                </button>
               </div>
             </div>
-          </div>
-
-          <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[#a7b5b0]">
-            <p>StayWell © 2025. All Rights Reserved.</p>
-            <p>Made with ❤️ for StayWell</p>
           </div>
         </motion.div>
       </motion.div>

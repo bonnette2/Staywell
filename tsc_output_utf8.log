@@ -1,0 +1,22 @@
+﻿src/components/AboutDiscover.tsx(44,21): error TS2322: Type '{ hidden: { opacity: number; x: number; scale: number; }; visible: { opacity: number; x: number; scale: number; transition: { type: string; bounce: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; x: number; scale: number; transition: { type: string; bounce: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; x: number; scale: number; transition: { type: string; bounce: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; x: number; scale: number; transition: { type: string; bounce: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; bounce: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; bounce: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; bounce: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/AboutDiscover.tsx(83,21): error TS2322: Type '{ hidden: { opacity: number; scale: number; y: number; }; visible: { opacity: number; scale: number; y: number; transition: { type: string; bounce: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; y: number; transition: { type: string; bounce: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; y: number; transition: { type: string; bounce: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; y: number; transition: { type: string; bounce: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; bounce: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; bounce: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; bounce: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.

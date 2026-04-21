@@ -4,8 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { 
   Search, 
-  Phone, 
-  Video, 
+  CalendarDays,
+  CheckCheck,
   Smile, 
   Camera, 
   Paperclip,
@@ -43,7 +43,7 @@ export default function MessagesPage() {
               <input 
                 type="text" 
                 placeholder="search message" 
-                className="w-full bg-white border border-zinc-200 rounded-lg py-2.5 pl-10 pr-4 text-sm font-semibold outline-none focus:ring-1 focus:ring-[#0F3D2E] transition-all placeholder:text-zinc-400 shadow-sm"
+                className="w-full bg-white border border-zinc-200 rounded-lg py-2.5 pl-10 pr-4 text-sm font-semibold outline-none focus:ring-1 focus:ring-[#002521] transition-all placeholder:text-zinc-400 shadow-sm"
               />
             </div>
           </div>
@@ -55,14 +55,14 @@ export default function MessagesPage() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`py-3 px-2 text-[14px] font-bold transition-all relative ${
-                  activeTab === tab ? "text-[#0F3D2E]" : "text-zinc-500 hover:text-zinc-700"
+                  activeTab === tab ? "text-[#002521]" : "text-zinc-500 hover:text-zinc-700"
                 }`}
               >
                 {tab}
                 {activeTab === tab && (
                   <motion.div 
                     layoutId="msg-tab" 
-                    className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0F3D2E] rounded-t-full"
+                    className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#002521] rounded-t-full"
                   />
                 )}
               </button>
@@ -76,12 +76,12 @@ export default function MessagesPage() {
                 key={conv.id}
                 onClick={() => setActiveConv(conv.id)}
                 className={`flex gap-4 p-5 cursor-pointer transition-colors relative group ${
-                  activeConv === conv.id ? 'bg-[#0F3D2E]/5' : 'hover:bg-zinc-50'
+                  activeConv === conv.id ? 'bg-[#002521]/5' : 'hover:bg-zinc-50'
                 }`}
               >
                 {/* Active Indicator line */}
                 {activeConv === conv.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0F3D2E]" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#002521]" />
                 )}
                 
                 {/* Avatar */}
@@ -102,7 +102,7 @@ export default function MessagesPage() {
                       {conv.preview}
                     </p>
                     {conv.unread && (
-                      <span className="w-4 h-4 bg-[#0F3D2E] text-white text-[9px] font-bold flex items-center justify-center rounded-full shrink-0 ml-2">
+                      <span className="w-4 h-4 bg-[#002521] text-white text-[9px] font-bold flex items-center justify-center rounded-full shrink-0 ml-2">
                         {conv.unread}
                       </span>
                     )}
@@ -127,9 +127,21 @@ export default function MessagesPage() {
                  <p className="text-sm text-zinc-500 font-medium">Luxury Villa kigali</p>
                </div>
             </div>
-            <div className="flex items-center gap-4 text-zinc-600">
-               <button className="p-2 hover:bg-zinc-100 rounded-full transition"><Phone size={20} /></button>
-               <button className="p-2 hover:bg-zinc-100 rounded-full transition"><Video size={22} /></button>
+            <div className="flex items-center gap-3">
+               <button
+                 title="View Booking"
+                 className="flex items-center gap-2 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-[12px] font-bold px-4 py-2 rounded-lg transition"
+               >
+                 <CalendarDays size={15} className="text-[#002521]" />
+                 View Booking
+               </button>
+               <button
+                 title="Mark as Resolved"
+                 className="flex items-center gap-2 bg-[#002521] hover:bg-[#002521]/90 text-white text-[12px] font-bold px-4 py-2 rounded-lg transition shadow-sm"
+               >
+                 <CheckCheck size={15} />
+                 Mark Resolved
+               </button>
             </div>
           </div>
 
@@ -138,10 +150,10 @@ export default function MessagesPage() {
              
              {/* Host Sent Messages Block */}
              <div className="flex flex-col gap-2 items-end">
-               <div className="bg-[#0F3D2E] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm transform-gpu transition-all">
+               <div className="bg-[#002521] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm transform-gpu transition-all">
                  <p className="text-[14px] leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
                </div>
-               <div className="bg-[#0F3D2E] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm transform-gpu transition-all">
+               <div className="bg-[#002521] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm transform-gpu transition-all">
                  <p className="text-[14px] leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
                </div>
                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mt-1 mr-1">01:22 PM</span>
@@ -167,13 +179,13 @@ export default function MessagesPage() {
 
              {/* More Host Sent Messages Block */}
              <div className="flex flex-col gap-3 items-end">
-               <div className="bg-[#0F3D2E] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm">
+               <div className="bg-[#002521] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm">
                  <p className="text-[14px] leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
                </div>
-               <div className="bg-[#0F3D2E] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm">
+               <div className="bg-[#002521] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm">
                  <p className="text-[14px] leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
                </div>
-               <div className="bg-[#0F3D2E] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm">
+               <div className="bg-[#002521] text-white px-6 py-4 rounded-xl rounded-tr-sm max-w-[500px] shadow-sm">
                  <p className="text-[14px] leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
                </div>
                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mt-1 mr-1">01:22 PM</span>
@@ -192,7 +204,7 @@ export default function MessagesPage() {
                <button className="text-zinc-500 hover:text-zinc-800 transition p-1.5"><Smile size={20} /></button>
                <button className="text-zinc-500 hover:text-zinc-800 transition p-1.5"><Camera size={20} /></button>
                <button className="text-zinc-500 hover:text-zinc-800 transition p-1.5"><Paperclip size={20} /></button>
-               <button className="bg-[#0F3D2E] text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-[#0a2e22] transition shrink-0 ml-1 shadow-sm">
+               <button className="bg-[#002521] text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-[#002521]/90 transition shrink-0 ml-1 shadow-sm">
                  <Send size={18} className="translate-y-[1px] -translate-x-[1px]" />
                </button>
              </div>

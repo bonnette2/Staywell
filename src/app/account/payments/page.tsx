@@ -191,7 +191,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       </p>
       <button
         onClick={onAdd}
-        className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-[#064e3b] transition-all shadow-lg shadow-primary/20 hover:scale-[1.02]"
+        className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-[#001a17] transition-all shadow-lg shadow-primary/20 hover:scale-[1.02]"
       >
         <Plus size={18} /> Add Payment Method
       </button>
@@ -419,7 +419,7 @@ function AddPaymentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (m: P
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-[#064e3b] transition-all shadow-lg shadow-primary/20 hover:scale-[1.01]"
+            className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-[#001a17] transition-all shadow-lg shadow-primary/20 hover:scale-[1.01]"
           >
             Save Payment Method
           </button>
@@ -491,7 +491,7 @@ export default function PaymentsPage() {
             {methods.length > 0 && (
               <button
                 onClick={() => setShowAdd(true)}
-                className="flex items-center gap-2 px-6 py-3.5 bg-primary text-white rounded-2xl font-bold hover:bg-[#064e3b] transition-all shadow-lg shadow-primary/20 shrink-0 text-sm"
+                className="flex items-center gap-2 px-6 py-3.5 bg-primary text-white rounded-2xl font-bold hover:bg-[#001a17] transition-all shadow-lg shadow-primary/20 shrink-0 text-sm"
               >
                 <Plus size={18} /> Add Method
               </button>

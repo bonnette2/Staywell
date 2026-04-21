@@ -85,7 +85,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center justify-between mb-16">
               <h2 className="text-4xl font-bold tracking-tight">View other properties</h2>
-              <Link href="/properties" className="group flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-full text-sm font-bold shadow-xl transition-all hover:bg-[#064e3b] shadow-primary/20">
+              <Link href="/properties" className="group flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-full text-sm font-bold shadow-xl transition-all hover:bg-[#001a17] shadow-primary/20">
                 View all properties <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>

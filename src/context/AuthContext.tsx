@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (userData: User & { password?: string }) => Promise<void>;
   logout: () => void;
+  forgotPassword: (email: string) => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -65,8 +66,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/");
   };
 
+  const forgotPassword = async (email: string) => {
+    // Mock forgot password call
+    console.log(`Password reset email sent to ${email}`);
+    return new Promise<void>((resolve) => setTimeout(resolve, 1500));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, forgotPassword, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

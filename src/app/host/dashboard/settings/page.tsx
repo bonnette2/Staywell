@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, 
   Lock, 
@@ -43,13 +44,13 @@ export default function SettingsPage() {
                <button
                  key={tab.id}
                  onClick={() => setActiveTab(tab.id)}
-                 className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all font-semibold text-sm ${
+                 className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 font-semibold text-sm outline-none focus:outline-none focus:ring-0 select-none active:scale-[0.98] ${
                    isActive 
-                     ? "bg-white text-[#0F3D2E] shadow-sm border border-zinc-100/80" 
-                     : "text-zinc-500 hover:text-zinc-800 hover:bg-white/50"
+                     ? "bg-white text-[#002521] shadow-sm border border-zinc-100/80" 
+                     : "text-zinc-500 hover:text-zinc-800 hover:bg-white/50 border border-transparent"
                  }`}
                >
-                 <tab.icon size={20} className={isActive ? "text-[#0F3D2E]" : "text-zinc-400"} />
+                 <tab.icon size={20} className={isActive ? "text-[#002521]" : "text-zinc-400"} />
                  {tab.label}
                </button>
              )
@@ -58,10 +59,17 @@ export default function SettingsPage() {
 
         {/* Right Side Main Content */}
         <div className="flex-1 w-full bg-white border border-zinc-200/80 rounded-2xl shadow-sm p-8 lg:p-10 min-h-[600px]">
-           
+           <AnimatePresence mode="wait">
            {/* 1. Profile Information */}
            {activeTab === "Profile" && (
-             <div className="space-y-10 animate-in fade-in zoom-in-95 duration-200">
+             <motion.div 
+               key="Profile"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               transition={{ duration: 0.2 }}
+               className="space-y-10"
+             >
                <div>
                  <h2 className="text-xl font-extrabold text-zinc-900">Profile Information</h2>
                  <p className="text-sm text-zinc-500 font-medium mt-1">Update your personal information and public profile.</p>
@@ -85,38 +93,45 @@ export default function SettingsPage() {
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">First Name</label>
-                   <input type="text" defaultValue="John" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="text" defaultValue="John" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">Last Name</label>
-                   <input type="text" defaultValue="Doe" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="text" defaultValue="Doe" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">Email Address</label>
-                   <input type="email" defaultValue="johndoe@example.com" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="email" defaultValue="johndoe@example.com" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">Phone Number</label>
-                   <input type="tel" defaultValue="+250 788 123 456" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="tel" defaultValue="+250 788 123 456" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  <div className="md:col-span-2 space-y-2">
                    <label className="text-sm font-bold text-zinc-700">Bio</label>
-                   <textarea rows={4} defaultValue="Premium real estate host based in Kigali, Rwanda. Passionate about offering luxurious stays." className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm resize-none"></textarea>
+                   <textarea rows={4} defaultValue="Premium real estate host based in Kigali, Rwanda. Passionate about offering luxurious stays." className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm resize-none"></textarea>
                  </div>
                </div>
 
                <div className="flex justify-end pt-4">
-                 <button className="bg-[#0F3D2E] text-white flex items-center gap-2 px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-[#0a2e22] transition-all">
+                 <button className="bg-[#002521] text-white flex items-center gap-2 px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-[#002521]/90 transition-all">
                    <Check size={18} />
                    Save Changes
                  </button>
                </div>
-             </div>
+             </motion.div>
            )}
 
            {/* 2. Security & Password */}
            {activeTab === "Security" && (
-             <div className="space-y-10 animate-in fade-in zoom-in-95 duration-200">
+             <motion.div 
+               key="Security"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               transition={{ duration: 0.2 }}
+               className="space-y-10"
+             >
                <div>
                  <h2 className="text-xl font-extrabold text-zinc-900">Security & Password</h2>
                  <p className="text-sm text-zinc-500 font-medium mt-1">Manage your password and secure your account.</p>
@@ -125,19 +140,19 @@ export default function SettingsPage() {
                <div className="space-y-6 max-w-lg">
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">Current Password</label>
-                   <input type="password" placeholder="••••••••" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="password" placeholder="••••••••" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">New Password</label>
-                   <input type="password" placeholder="Enter new password" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="password" placeholder="Enter new password" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-sm font-bold text-zinc-700">Confirm Password</label>
-                   <input type="password" placeholder="Confirm new password" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/20 transition-all text-zinc-900 font-medium shadow-sm" />
+                   <input type="password" placeholder="Confirm new password" className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-[#002521]/20 transition-all text-zinc-900 font-medium shadow-sm" />
                  </div>
                  
                  <div className="pt-2">
-                   <button className="bg-[#0F3D2E] text-white px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-[#0a2e22] transition-all">
+                   <button className="bg-[#002521] text-white px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-[#002521]/90 transition-all">
                      Update Password
                    </button>
                  </div>
@@ -159,12 +174,19 @@ export default function SettingsPage() {
                     </button>
                  </div>
                </div>
-             </div>
+             </motion.div>
            )}
 
            {/* 3. Notifications */}
            {activeTab === "Notifications" && (
-             <div className="space-y-10 animate-in fade-in zoom-in-95 duration-200">
+             <motion.div 
+               key="Notifications"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               transition={{ duration: 0.2 }}
+               className="space-y-10"
+             >
                <div>
                  <h2 className="text-xl font-extrabold text-zinc-900">Notification Preferences</h2>
                  <p className="text-sm text-zinc-500 font-medium mt-1">Choose how you want to be notified about activity.</p>
@@ -182,7 +204,7 @@ export default function SettingsPage() {
                         <p className="text-sm text-zinc-500 font-medium mt-1">Receive booking updates and messages via email.</p>
                       </div>
                     </div>
-                    <div className="w-12 h-6 bg-[#0F3D2E] rounded-full relative cursor-pointer shadow-inner">
+                    <div className="w-12 h-6 bg-[#002521] rounded-full relative cursor-pointer shadow-inner">
                       <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1 shadow-sm"></div>
                     </div>
                  </div>
@@ -197,7 +219,7 @@ export default function SettingsPage() {
                         <p className="text-sm text-zinc-500 font-medium mt-1">Receive direct alerts on your mobile device.</p>
                       </div>
                     </div>
-                    <div className="w-12 h-6 bg-[#0F3D2E] rounded-full relative cursor-pointer shadow-inner">
+                    <div className="w-12 h-6 bg-[#002521] rounded-full relative cursor-pointer shadow-inner">
                       <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1 shadow-sm"></div>
                     </div>
                  </div>
@@ -220,16 +242,23 @@ export default function SettingsPage() {
                </div>
                
                <div className="flex justify-end pt-4">
-                 <button className="bg-[#0F3D2E] text-white px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-[#0a2e22] transition-all">
+                 <button className="bg-[#002521] text-white px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-[#002521]/90 transition-all">
                    Save Preferences
                  </button>
                </div>
-             </div>
+             </motion.div>
            )}
 
            {/* 4. Billing */}
            {activeTab === "Billing" && (
-             <div className="space-y-10 animate-in fade-in zoom-in-95 duration-200">
+             <motion.div 
+               key="Billing"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               transition={{ duration: 0.2 }}
+               className="space-y-10"
+             >
                <div>
                  <h2 className="text-xl font-extrabold text-zinc-900">Billing & Payouts</h2>
                  <p className="text-sm text-zinc-500 font-medium mt-1">Manage your payment methods and payout details.</p>
@@ -280,8 +309,9 @@ export default function SettingsPage() {
                  </div>
                </div>
 
-             </div>
+             </motion.div>
            )}
+           </AnimatePresence>
 
         </div>
       </div>

@@ -21,6 +21,7 @@ export interface Property {
     parking: number;
   };
   category: string;
+  amenities?: string[];
 }
 
 const popUp = {
@@ -65,7 +66,7 @@ export default function PropertyCard({ property }: { property: Property }) {
               e.preventDefault();
               setIsWishlisted(!isWishlisted);
             }}
-            className={`absolute top-5 right-5 z-30 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl ${
+            className={`absolute top-5 right-5 z-20 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl ${
               isWishlisted ? "bg-white text-red-500" : "bg-white text-zinc-400 hover:text-red-500"
             }`}
           >
@@ -121,7 +122,7 @@ export default function PropertyCard({ property }: { property: Property }) {
             <span className="text-primary text-lg font-black">{property.price}</span>
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Per night</span>
           </div>
-          <Link href={`/properties/${property.id}`} className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white hover:bg-[#064e3b] transition-all duration-300 rounded-full text-xs font-bold shadow-sm whitespace-nowrap scale-95 hover:scale-100">
+          <Link href={`/properties/${property.id}`} className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white hover:bg-[#001a17] transition-all duration-300 rounded-full text-xs font-bold shadow-sm whitespace-nowrap scale-95 hover:scale-100">
             Read more <motion.span whileHover={{ x: 3 }}>{">"}</motion.span>
           </Link>
         </div>

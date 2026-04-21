@@ -74,7 +74,7 @@ function EditableRow({
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={onSave}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-[#064e3b] transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-[#001a17] transition-all"
                   >
                     <Check size={13} /> Save
                   </button>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
                       className="object-cover"
                     />
                   </div>
-                  <button className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary rounded-2xl shadow-lg flex items-center justify-center text-white hover:bg-[#064e3b] transition-all hover:scale-110">
+                  <button className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary rounded-2xl shadow-lg flex items-center justify-center text-white hover:bg-[#001a17] transition-all hover:scale-110">
                     <Camera size={16} />
                   </button>
                 </div>

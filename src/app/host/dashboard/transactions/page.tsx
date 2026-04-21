@@ -10,7 +10,6 @@ import {
   Eye,
   Clock,
   CreditCard,
-  Building2,
   Square,
   CheckSquare,
   TrendingUp,
@@ -20,7 +19,15 @@ import {
   ChevronDown,
   ChevronUp,
   Wallet,
-  ArrowRight
+  ArrowRight,
+  BookOpen,
+  Building2,
+  Download,
+  MapPin,
+  User,
+  FileText,
+  Info as InfoIcon,
+  ExternalLink
 } from "lucide-react";
 import Image from "next/image";
 
@@ -41,7 +48,20 @@ interface Payout {
   amount: number;
   dateRequested: string;
   status: "Completed" | "Pending" | "Failed";
-  method: "Bank" | "Mobile Money";
+  method: "Bank" | "Mobile Money" | "Wallet";
+  propertyName: string;
+  location: string;
+  bookingId: string;
+  guestName: string;
+  breakdown: {
+    bookingAmount: number;
+    platformFee: number;
+    cleaningFee: number;
+    taxes: number;
+  };
+  accountDetails: string;
+  transactionId: string;
+  processingDate?: string;
 }
 
 // --- Mock Data ---
@@ -87,9 +107,65 @@ const REVENUE_PERIODS = {
 };
 
 const MOCK_PAYOUTS: Payout[] = [
-  { id: "PAY-1122-Y7", amount: 450000, dateRequested: "2026-04-10", status: "Completed", method: "Bank" },
-  { id: "PAY-3344-H2", amount: 120000, dateRequested: "2026-04-14", status: "Pending", method: "Mobile Money" },
-  { id: "PAY-5566-P9", amount: 280000, dateRequested: "2026-04-05", status: "Completed", method: "Bank" },
+  { 
+    id: "PAY-1122-Y7", 
+    amount: 450000, 
+    dateRequested: "2026-04-10", 
+    status: "Completed", 
+    method: "Bank",
+    propertyName: "Luxury Villa Kigali",
+    location: "Kigali, Rwanda",
+    bookingId: "BK-2024-001",
+    guestName: "Sarah Johnson",
+    breakdown: {
+      bookingAmount: 550000,
+      platformFee: 55000,
+      cleaningFee: 25000,
+      taxes: 20000
+    },
+    accountDetails: "**** 5678",
+    transactionId: "TXN-7788-9900",
+    processingDate: "2026-04-12"
+  },
+  { 
+    id: "PAY-3344-H2", 
+    amount: 120000, 
+    dateRequested: "2026-04-14", 
+    status: "Pending", 
+    method: "Mobile Money",
+    propertyName: "Urban Studio",
+    location: "Kigali, Rwanda",
+    bookingId: "BK-2024-005",
+    guestName: "Michael Jen",
+    breakdown: {
+      bookingAmount: 150000,
+      platformFee: 15000,
+      cleaningFee: 10000,
+      taxes: 5000
+    },
+    accountDetails: "*799",
+    transactionId: "TXN-pending",
+  },
+  { 
+    id: "PAY-5566-P9", 
+    amount: 280000, 
+    dateRequested: "2026-04-05", 
+    status: "Completed", 
+    method: "Bank",
+    propertyName: "Cozy Lakeview Cabin",
+    location: "Gisenyi, Rwanda",
+    bookingId: "BK-2024-012",
+    guestName: "Emma Wilson",
+    breakdown: {
+      bookingAmount: 350000,
+      platformFee: 35000,
+      cleaningFee: 20000,
+      taxes: 15000
+    },
+    accountDetails: "**** 1234",
+    transactionId: "TXN-5566-7788",
+    processingDate: "2026-04-07"
+  },
 ];
 
 export default function TransactionsPage() {
@@ -109,6 +185,8 @@ export default function TransactionsPage() {
   const [payoutAmount, setPayoutAmount] = useState("");
   const [payoutMethod, setPayoutMethod] = useState<"Bank" | "Mobile Money">("Bank");
   const [availableBalance] = useState(1250000);
+  const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
+  const [showPayoutModal, setShowPayoutModal] = useState(false);
 
   // --- Filtering Logic ---
 
@@ -174,24 +252,38 @@ export default function TransactionsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Total Revenue", value: "2.6 M RWF", icon: TrendingUp, trend: "+ 3.6%" },
-          { label: "Pending payouts", value: "0 RWF", icon: Clock, trend: "+ 3.6%" },
-          { label: "Completed payouts", value: "30,000", icon: CheckSquare, trend: "+ 3.6%" },
-          { label: "Monthly earning", value: "2.26 M", icon: PieChart, trend: "+ 3.6%" }
+          { label: "Total Revenue", value: "2.6 M RWF", icon: Building2, trend: "3.6+", progress: 75 },
+          { label: "Pending payouts", value: "0 RWF", icon: BookOpen, trend: "3.6", progress: 65 },
+          { label: "Completed payouts", value: "30,000 RWF", icon: Wallet, trend: "3.6+", progress: 85 },
+          { label: "Monthly earning", value: "2.26 M RWF", icon: PieChart, trend: "3.6+", progress: 45 }
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-xl border border-zinc-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full border-2 border-zinc-100 flex items-center justify-center p-1.5 shrink-0">
-              <div className="w-full h-full rounded-full border-2 border-[#005244] flex items-center justify-center text-[#005244]">
-                <stat.icon size={20} />
+          <div key={i} className="bg-white p-6 rounded-xl border border-zinc-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] flex items-center gap-6">
+            <div className="relative w-[64px] h-[64px] shrink-0">
+              <div className="absolute inset-0 rounded-full bg-white shadow-inner"></div>
+              <svg className="absolute inset-0 w-[64px] h-[64px] -rotate-90">
+                <circle cx="32" cy="32" r="28" fill="none" stroke="#F1F5F9" strokeWidth="3" />
+                <motion.circle 
+                  cx="32" cy="32" r="28" fill="none" stroke="#002521" strokeWidth="3" 
+                  strokeDasharray="175.9" 
+                  initial={{ strokeDashoffset: 175.9 }}
+                  animate={{ strokeDashoffset: 175.9 - (175.9 * stat.progress) / 100 }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-[6px] bg-white rounded-full shadow-md flex items-center justify-center border border-zinc-50">
+                <stat.icon size={20} className="text-[#002521]" />
               </div>
             </div>
+            
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-0.5">{stat.label}</p>
-              <div className="flex items-end justify-between">
-                <h3 className="text-xl font-extrabold text-zinc-900 truncate">{stat.value}</h3>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-[#005244] mb-0.5">
-                  <TrendingUp size={10} />
-                  <span>{stat.trend}</span>
+              <p className="text-[12px] font-bold text-zinc-900 mb-2 leading-tight tracking-tight">{stat.label}</p>
+              <div className="flex items-center flex-wrap gap-2">
+                <span className="text-2xl font-extrabold text-zinc-900 leading-none">{stat.value}</span>
+                <div className="flex items-center gap-1 text-[11px] font-bold text-[#002521] whitespace-nowrap mt-1">
+                  <TrendingUp size={12} className="text-[#002521]" />
+                  <span>~ {stat.trend}</span>
+                  <span className="text-zinc-400 font-medium ml-0.5">This month</span>
                 </div>
               </div>
             </div>
@@ -204,23 +296,23 @@ export default function TransactionsPage() {
         <button 
           onClick={() => setActiveTab("Transactions")}
           className={`pb-4 px-2 text-sm font-bold transition-all relative ${
-            activeTab === "Transactions" ? "text-[#0F3D2E]" : "text-zinc-400 hover:text-zinc-600"
+            activeTab === "Transactions" ? "text-[#002521]" : "text-zinc-400 hover:text-zinc-600"
           }`}
         >
           Transactions
           {activeTab === "Transactions" && (
-            <motion.div layoutId="tab-underline" className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#0F3D2E] rounded-full" />
+            <motion.div layoutId="tab-underline" className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#002521] rounded-full" />
           )}
         </button>
         <button 
           onClick={() => setActiveTab("Payouts")}
           className={`pb-4 px-2 text-sm font-bold transition-all relative ${
-            activeTab === "Payouts" ? "text-[#0F3D2E]" : "text-zinc-400 hover:text-zinc-600"
+            activeTab === "Payouts" ? "text-[#002521]" : "text-zinc-400 hover:text-zinc-600"
           }`}
         >
           Payouts
           {activeTab === "Payouts" && (
-            <motion.div layoutId="tab-underline" className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#0F3D2E] rounded-full" />
+            <motion.div layoutId="tab-underline" className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#002521] rounded-full" />
           )}
         </button>
       </div>
@@ -237,7 +329,7 @@ export default function TransactionsPage() {
                     key={t}
                     onClick={() => setRevenuePeriod(t as any)}
                     className={`px-6 py-2 rounded text-xs font-bold transition-all ${
-                      revenuePeriod === t ? "bg-white text-[#0F3D2E] shadow-sm" : "text-zinc-400 hover:text-zinc-600"
+                      revenuePeriod === t ? "bg-white text-[#002521] shadow-sm" : "text-zinc-400 hover:text-zinc-600"
                     }`}
                   >
                     {t}
@@ -259,8 +351,8 @@ export default function TransactionsPage() {
               <div className="absolute left-12 right-4 top-0 bottom-8 flex justify-around items-end px-4">
                 {REVENUE_PERIODS[revenuePeriod].map((data, i) => (
                   <div key={i} className="flex items-end gap-1.5 h-full w-full justify-center">
-                    <motion.div initial={{ height: 0 }} animate={{ height: `${data.current}%` }} className="w-6 bg-[#0F3D2E] rounded-t-sm" />
-                    <motion.div initial={{ height: 0 }} animate={{ height: `${data.previous}%` }} className="w-6 bg-[#0F3D2E]/20 rounded-t-sm" />
+                    <motion.div initial={{ height: 0 }} animate={{ height: `${data.current}%` }} className="w-6 bg-[#002521] rounded-t-sm" />
+                    <motion.div initial={{ height: 0 }} animate={{ height: `${data.previous}%` }} className="w-6 bg-[#002521]/20 rounded-t-sm" />
                   </div>
                 ))}
               </div>
@@ -271,11 +363,11 @@ export default function TransactionsPage() {
 
             <div className="flex justify-center items-center gap-10 mt-10">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#0F3D2E]" />
+                <div className="w-3 h-3 rounded-full bg-[#002521]" />
                 <span className="text-[11px] font-bold text-zinc-600">Current Period</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#0F3D2E]/20" />
+                <div className="w-3 h-3 rounded-full bg-[#002521]/20" />
                 <span className="text-[11px] font-bold text-zinc-600">Previous period</span>
               </div>
             </div>
@@ -283,7 +375,7 @@ export default function TransactionsPage() {
 
           <div className="flex justify-between items-center mb-6 pt-4">
             <h2 className="text-lg font-extrabold text-zinc-900 tracking-tight leading-none">Transaction history</h2>
-            <button className="text-[10px] font-bold text-[#0F3D2E] hover:underline transition-colors uppercase tracking-[0.2em]">see all</button>
+            <button className="text-[10px] font-bold text-[#002521] hover:underline transition-colors uppercase tracking-[0.2em]">see all</button>
           </div>
 
           <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 mb-4">
@@ -295,18 +387,18 @@ export default function TransactionsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 suppressHydrationWarning
-                className="w-full bg-white border border-zinc-200 rounded-lg py-2.5 pl-11 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#0F3D2E]/10 transition-all shadow-sm placeholder:text-zinc-400"
+                className="w-full bg-white border border-zinc-200 rounded-lg py-2.5 pl-11 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#002521]/10 transition-all shadow-sm placeholder:text-zinc-400"
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <div className="relative">
                 <div 
-                  className={`flex items-center gap-2 bg-white border px-4 py-2.5 rounded-lg shadow-sm cursor-pointer hover:bg-zinc-50 transition ${dateRange.start ? 'border-[#0F3D2E]/30 bg-emerald-50/20' : 'border-zinc-200'}`} 
+                  className={`flex items-center gap-2 bg-white border px-4 py-2.5 rounded-lg shadow-sm cursor-pointer hover:bg-zinc-50 transition ${dateRange.start ? 'border-[#002521]/30 bg-[#002521]/5' : 'border-zinc-200'}`} 
                   onClick={() => setShowDatePicker(!showDatePicker)}
                 >
-                  <Calendar size={16} className={dateRange.start ? "text-[#0F3D2E]" : "text-zinc-500"} />
-                  <span className={`text-sm font-semibold ${dateRange.start ? 'text-[#0F3D2E]' : 'text-zinc-700'}`}>
+                  <Calendar size={16} className={dateRange.start ? "text-[#002521]" : "text-zinc-500"} />
+                  <span className={`text-sm font-semibold ${dateRange.start ? 'text-[#002521]' : 'text-zinc-700'}`}>
                     {dateRange.start ? `${dateRange.start} - ${dateRange.end || '...'}` : 'Date Range'}
                   </span>
                 </div>
@@ -330,7 +422,7 @@ export default function TransactionsPage() {
                         </div>
                         <div className="flex gap-2 pt-2">
                            <button onClick={() => {setDateRange({start: "", end: ""}); setShowDatePicker(false)}} className="flex-1 py-2 text-xs font-bold text-zinc-400 hover:text-zinc-600">Clear</button>
-                           <button onClick={() => setShowDatePicker(false)} className="flex-1 bg-[#0F3D2E] text-white py-2 rounded-lg text-xs font-bold shadow-lg shadow-emerald-900/10">Apply</button>
+                           <button onClick={() => setShowDatePicker(false)} className="flex-1 bg-[#002521] text-white py-2 rounded-lg text-xs font-bold shadow-lg shadow-emerald-900/10">Apply</button>
                         </div>
                       </div>
                     </motion.div>
@@ -355,10 +447,10 @@ export default function TransactionsPage() {
               </div>
 
               <div className="flex items-center bg-white border border-zinc-200 rounded-lg p-1 shadow-sm">
-                <button onClick={() => setViewMode("grid")} className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-[#0F3D2E] text-white shadow-sm" : "text-zinc-400 hover:text-zinc-600"}`}>
+                <button onClick={() => setViewMode("grid")} className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-[#002521] text-white shadow-sm" : "text-zinc-400 hover:text-zinc-600"}`}>
                   <LayoutGrid size={16} />
                 </button>
-                <button onClick={() => setViewMode("list")} className={`p-2 rounded-md transition-all ${viewMode === "list" ? "bg-[#0F3D2E] text-white shadow-sm" : "text-zinc-400 hover:text-zinc-600"}`}>
+                <button onClick={() => setViewMode("list")} className={`p-2 rounded-md transition-all ${viewMode === "list" ? "bg-[#002521] text-white shadow-sm" : "text-zinc-400 hover:text-zinc-600"}`}>
                   <List size={16} />
                 </button>
               </div>
@@ -370,26 +462,26 @@ export default function TransactionsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
-                    <tr className="bg-[#0F3D2E] text-white">
-                      <th className="p-5 w-14 text-center border-b border-[#0F3D2E]">
+                    <tr className="bg-[#002521] text-white">
+                      <th className="p-5 w-14 text-center border-b border-[#002521]">
                         <button onClick={toggleSelectAll} className="opacity-60 hover:opacity-100 transition">
                           {selectedIds.length === filteredTransactions.length && filteredTransactions.length > 0 ? <CheckSquare size={18} /> : <Square size={18} />}
                         </button>
                       </th>
-                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider border-b border-[#0F3D2E]">Guest Name</th>
-                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider border-b border-[#0F3D2E]">Property</th>
-                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider border-b border-[#0F3D2E]">Date</th>
-                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider border-b border-[#0F3D2E]">Amount</th>
-                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider border-b border-[#0F3D2E]">Status</th>
-                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider border-b border-[#0F3D2E] text-center">Action</th>
+                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider">Guest Name</th>
+                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider">Property</th>
+                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider">Date</th>
+                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider">Amount</th>
+                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider">Status</th>
+                      <th className="p-5 text-[12px] font-semibold uppercase tracking-wider text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-50 text-[13px]">
                     {filteredTransactions.map((t, i) => (
                       <tr key={t.id} className={`${i % 2 === 1 ? 'bg-zinc-50/30' : 'bg-white'} hover:bg-zinc-100/30 transition-colors`}>
                         <td className="p-5 text-center">
-                          <button onClick={() => toggleSelect(t.id)} className="text-zinc-300 hover:text-[#0F3D2E] transition">
-                            {selectedIds.includes(t.id) ? <CheckSquare size={18} className="text-[#0F3D2E]" /> : <Square size={18} />}
+                          <button onClick={() => toggleSelect(t.id)} className="text-zinc-300 hover:text-[#002521] transition">
+                            {selectedIds.includes(t.id) ? <CheckSquare size={18} className="text-[#002521]" /> : <Square size={18} />}
                           </button>
                         </td>
                         <td className="p-5 font-semibold text-zinc-900">{t.guest}</td>
@@ -414,14 +506,14 @@ export default function TransactionsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 text-[13px]">
               {filteredTransactions.map((t) => (
                 <div key={t.id} className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-50 rounded-bl-full -mr-8 -mt-8 -z-10 group-hover:bg-[#0F3D2E]/5 transition-colors" />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-50 rounded-bl-full -mr-8 -mt-8 -z-10 group-hover:bg-[#002521]/5 transition-colors" />
                   
                   <div className="flex justify-between items-start mb-6">
                      <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-sm">
                         <Building2 size={22} strokeWidth={2.5} />
                      </div>
-                     <button onClick={() => toggleSelect(t.id)} className="text-zinc-200 hover:text-[#0F3D2E] transition">
-                        {selectedIds.includes(t.id) ? <CheckSquare size={18} className="text-[#0F3D2E]" /> : <Square size={18} />}
+                     <button onClick={() => toggleSelect(t.id)} className="text-zinc-200 hover:text-[#002521] transition">
+                        {selectedIds.includes(t.id) ? <CheckSquare size={18} className="text-[#002521]" /> : <Square size={18} />}
                      </button>
                   </div>
 
@@ -450,11 +542,11 @@ export default function TransactionsPage() {
                   <div className="flex justify-between items-center gap-4 pt-2">
                      <div>
                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Payment</p>
-                       <p className="text-sm font-bold text-[#0F3D2E]">{t.amount.toLocaleString()} RWF</p>
+                       <p className="text-sm font-bold text-[#002521]">{t.amount.toLocaleString()} RWF</p>
                      </div>
                      <button 
                        onClick={() => setSelectedTransaction(t)}
-                       className="px-4 py-2 bg-[#0F3D2E] text-white rounded-lg hover:bg-[#0F3D2E]/90 transition shadow-lg shadow-emerald-900/10 text-xs font-bold"
+                       className="px-4 py-2 bg-[#002521] text-white rounded-lg hover:bg-[#002521]/90 transition shadow-lg shadow-emerald-900/10 text-xs font-bold"
                      >
                        View Details
                      </button>
@@ -468,7 +560,7 @@ export default function TransactionsPage() {
             <span className="text-xs font-semibold text-zinc-500">Showing {filteredTransactions.length} of {MOCK_TRANSACTIONS.length} results</span>
             <div className="flex items-center gap-2">
               <button className="px-4 py-2 rounded-lg border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 bg-white transition shadow-sm">Previous</button>
-              <div className="w-9 h-9 rounded-lg bg-[#0F3D2E] text-white text-sm font-semibold flex items-center justify-center shadow-lg shadow-emerald-900/10 transition">1</div>
+              <div className="w-9 h-9 rounded-lg bg-[#002521] text-white text-sm font-semibold flex items-center justify-center shadow-lg shadow-emerald-900/10 transition">1</div>
               <div className="w-9 h-9 rounded-lg border border-zinc-200 text-sm font-semibold text-zinc-400 bg-white flex items-center justify-center hover:bg-zinc-50 transition cursor-pointer">2</div>
               <button className="px-4 py-2 rounded-lg border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 bg-white transition shadow-sm">Next</button>
             </div>
@@ -488,7 +580,7 @@ export default function TransactionsPage() {
              </div>
              <button 
                 onClick={() => setShowRequestModal(true)}
-                className="w-full md:w-auto bg-[#0F3D2E] text-white px-10 py-4 rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+                className="w-full md:w-auto bg-[#002521] text-white px-10 py-4 rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3"
              >
                 Request Payout
                 <ArrowRight size={18} />
@@ -501,14 +593,15 @@ export default function TransactionsPage() {
                  <h2 className="text-lg font-extrabold text-zinc-900 tracking-tight leading-none mb-1">Payout History</h2>
                  <p className="text-sm font-medium text-zinc-500">Review all your previous withdrawal requests</p>
                </div>
-               <button className="bg-white border border-zinc-200 text-zinc-900 px-6 py-2.5 rounded-lg text-xs font-bold shadow-sm hover:bg-zinc-50 transition uppercase tracking-widest">
-                  Export PDF
+               <button className="bg-white border border-zinc-200/80 text-zinc-900 px-5 py-2.5 rounded-xl text-[13px] font-bold shadow-sm hover:bg-zinc-50 transition flex items-center gap-3">
+                 <Download size={18} className="text-zinc-400" />
+                 Export
                </button>
              </div>
              <div className="overflow-x-auto">
                <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead>
-                     <tr className="bg-[#0F3D2E] text-white">
+                     <tr className="bg-[#002521] text-white">
                        <th className="p-6 text-[12px] font-semibold uppercase tracking-widest">Payout ID</th>
                        <th className="p-6 text-[12px] font-semibold uppercase tracking-widest">Amount</th>
                        <th className="p-6 text-[12px] font-semibold uppercase tracking-widest">Date Requested</th>
@@ -534,7 +627,7 @@ export default function TransactionsPage() {
                          </td>
                          <td className="p-6 font-medium text-zinc-700 capitalize">{p.method}</td>
                          <td className="p-6 text-center">
-                              <button className="text-[11px] font-bold text-[#0F3D2E] uppercase tracking-widest hover:underline transition">
+                               <button onClick={() => { setSelectedPayout(p); setShowPayoutModal(true); }} className="text-[11px] font-bold text-[#002521] uppercase tracking-widest hover:underline transition">
                                 View details
                               </button>
                            </td>
@@ -553,7 +646,7 @@ export default function TransactionsPage() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedTransaction(null)} className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white rounded-2xl shadow-2xl relative z-10 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-              <div className="bg-[#0F3D2E] text-white px-10 py-6 flex justify-between items-center">
+              <div className="bg-[#002521] text-white px-10 py-6 flex justify-between items-center">
                  <h2 className="text-lg font-bold tracking-tight text-white">Transaction Details</h2>
                  <button onClick={() => setSelectedTransaction(null)} className="p-2 hover:bg-white/10 rounded-full transition"><XCircle size={22} /></button>
               </div>
@@ -586,7 +679,7 @@ export default function TransactionsPage() {
                      <div className="h-[1px] bg-zinc-100 mt-6" />
                      <div className="flex flex-col items-center pt-6 pb-2">
                         <p className="text-base font-bold text-zinc-900 mb-1 leading-none uppercase tracking-widest">Total Amounts</p>
-                        <p className="text-2xl font-extrabold text-[#0F3D2E]">RWF {selectedTransaction.amount.toLocaleString()}</p>
+                        <p className="text-2xl font-extrabold text-[#002521]">RWF {selectedTransaction.amount.toLocaleString()}</p>
                      </div>
                   </div>
                 </div>
@@ -607,7 +700,7 @@ export default function TransactionsPage() {
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowRequestModal(false)} className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white rounded-xl shadow-2xl relative z-10 w-full max-w-lg overflow-hidden flex flex-col">
-              <div className="bg-[#0F3D2E] text-white px-8 py-6">
+              <div className="bg-[#002521] text-white px-8 py-6">
                  <h2 className="text-lg font-bold tracking-tight">Request Payout</h2>
                  <p className="text-[10px] font-semibold text-white/70 uppercase tracking-[0.2em] mt-1">Transfer funds to your account</p>
               </div>
@@ -615,9 +708,9 @@ export default function TransactionsPage() {
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 flex items-center justify-between shadow-sm">
                    <div>
                       <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1 leading-none">Available to withdraw</p>
-                      <p className="text-2xl font-extrabold text-[#0F3D2E]">RWF {availableBalance.toLocaleString()}</p>
+                      <p className="text-2xl font-extrabold text-[#002521]">RWF {availableBalance.toLocaleString()}</p>
                    </div>
-                   <div className="w-12 h-12 rounded-full bg-white/50 flex items-center justify-center text-[#0F3D2E]/40">
+                   <div className="w-12 h-12 rounded-full bg-white/50 flex items-center justify-center text-[#002521]/40">
                       <Wallet size={24} />
                    </div>
                 </div>
@@ -632,12 +725,12 @@ export default function TransactionsPage() {
                            placeholder="0.00"
                            value={payoutAmount}
                            onChange={(e) => setPayoutAmount(e.target.value)}
-                           className="w-full bg-white border border-zinc-200 rounded-xl py-4 pl-14 pr-4 text-xl font-bold text-zinc-900 outline-none focus:ring-1 focus:ring-[#0F3D2E]/10 transition-all shadow-sm"
+                           className="w-full bg-white border border-zinc-200 rounded-xl py-4 pl-14 pr-4 text-xl font-bold text-zinc-900 outline-none focus:ring-1 focus:ring-[#002521]/10 transition-all shadow-sm"
                          />
                       </div>
                       <div className="flex justify-between mt-2 px-1">
                          <p className="text-[10px] font-bold text-zinc-400 italic">Min: RWF 5,000</p>
-                         <button onClick={() => setPayoutAmount(availableBalance.toString())} className="text-[10px] font-extrabold text-[#0F3D2E] uppercase tracking-widest hover:underline">Max Amount</button>
+                         <button onClick={() => setPayoutAmount(availableBalance.toString())} className="text-[10px] font-extrabold text-[#002521] uppercase tracking-widest hover:underline">Max Amount</button>
                       </div>
                    </div>
 
@@ -652,7 +745,7 @@ export default function TransactionsPage() {
                              key={m.id}
                              onClick={() => setPayoutMethod(m.id as any)}
                              className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${
-                               payoutMethod === m.id ? 'border-[#0F3D2E] bg-emerald-50/40 shadow-sm' : 'border-zinc-100 hover:border-zinc-200 bg-white'
+                               payoutMethod === m.id ? 'border-[#002521] bg-emerald-50/40 shadow-sm' : 'border-zinc-100 hover:border-zinc-200 bg-white'
                              }`}
                            >
                              <m.icon size={20} className={payoutMethod === m.id ? "text-emerald-700" : "text-zinc-400"} />
@@ -665,11 +758,20 @@ export default function TransactionsPage() {
 
                 <div className="flex gap-4 pt-4">
                    <button onClick={() => setShowRequestModal(false)} className="flex-1 py-4 text-sm font-bold text-zinc-500 hover:text-zinc-800 transition uppercase tracking-widest">Cancel</button>
-                   <button onClick={handleRequestPayout} className="flex-1 bg-[#0F3D2E] text-white py-4 rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest">Confirm & Payout</button>
+                   <button onClick={handleRequestPayout} className="flex-1 bg-[#002521] text-white py-4 rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest">Confirm & Payout</button>
                 </div>
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPayoutModal && selectedPayout && (
+          <PayoutDetailsModal 
+            payout={selectedPayout} 
+            onClose={() => setShowPayoutModal(false)} 
+          />
         )}
       </AnimatePresence>
     </div>
@@ -682,5 +784,174 @@ function Info(props: any) {
     <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
+  );
+}
+
+// --- Components ---
+
+interface PayoutDetailsModalProps {
+  payout: Payout;
+  onClose: () => void;
+}
+
+function PayoutDetailsModal({ payout, onClose }: PayoutDetailsModalProps) {
+  const hostNetEarnings = payout.amount;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header Section */}
+        <div className="px-8 py-7 border-b border-zinc-100 flex items-center justify-between sticky top-0 bg-white z-20">
+          <div>
+            <h2 className="text-xl font-extrabold text-zinc-900 tracking-tight leading-none">Payout Details</h2>
+            <p className="text-sm font-medium text-zinc-400 mt-2">Detailed breakdown of this transaction</p>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-2 hover:bg-zinc-100 rounded-full transition text-zinc-300 hover:text-zinc-600"
+          >
+            <XCircle size={24} />
+          </button>
+        </div>
+
+        <div className="px-8 py-10 space-y-10">
+          {/* Header ID & Status */}
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none">Payout ID</span>
+              <span className="text-sm font-extrabold text-zinc-900 leading-none">{payout.id}</span>
+            </div>
+            <div className={`px-4 py-2 rounded-lg text-[10px] font-extrabold uppercase tracking-widest border ${
+              payout.status === 'Completed' 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                : payout.status === 'Pending'
+                ? 'bg-amber-50 text-amber-700 border-amber-100'
+                : 'bg-red-50 text-red-700 border-red-100'
+            }`}>
+              {payout.status}
+            </div>
+          </div>
+
+          {/* Summary Card */}
+          <div className="bg-[#005244] p-8 rounded-xl text-white shadow-xl shadow-emerald-900/10 flex flex-col md:flex-row md:items-center justify-between gap-10">
+            <div className="space-y-2">
+              <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest leading-none">Total Payout Amount</p>
+              <h3 className="text-4xl font-extrabold tracking-tight">RWF {payout.amount.toLocaleString()}</h3>
+            </div>
+            
+            <div className="flex flex-wrap md:flex-nowrap gap-10 md:gap-12 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-10">
+              <div className="space-y-2">
+                <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest leading-none">Date Processed</p>
+                <p className="text-sm font-extrabold">{payout.processingDate || payout.dateRequested}</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest leading-none">Payment Method</p>
+                <p className="text-sm font-extrabold">{payout.method}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Property Reference */}
+          <div className="bg-zinc-50 rounded-xl p-6 border border-zinc-100/80 flex items-center justify-between gap-6">
+            <div className="flex items-center gap-5 overflow-hidden">
+              <div className="w-12 h-12 rounded-lg bg-white border border-zinc-100 flex items-center justify-center text-[#005244] shrink-0 shadow-sm text-lg">
+                <Building2 size={24} />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-[15px] font-extrabold text-zinc-900 truncate leading-tight mb-1.5">{payout.propertyName}</h4>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+                    <MapPin size={12} />
+                    <span>{payout.location}</span>
+                  </div>
+                  <div className="w-1 h-1 bg-zinc-200 rounded-full"></div>
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+                    <span className="font-bold text-zinc-500 uppercase">Booking ID:</span>
+                    <span className="text-zinc-600 font-bold">{payout.bookingId}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button className="p-2.5 bg-white shadow-sm border border-zinc-100 rounded-lg transition-all hover:scale-105 active:scale-95 text-[#005244] hover:text-emerald-700">
+              <ExternalLink size={18} />
+            </button>
+          </div>
+
+          {/* Bottom Grid: Earnings + Payout Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Earnings Breakdown */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2.5 pb-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#005244]" />
+                <h4 className="text-[11px] font-extrabold text-zinc-500 uppercase tracking-[0.1em]">Earnings Breakdown</h4>
+              </div>
+              <div className="space-y-0 text-[14px]">
+                {[
+                  { label: "Booking Amount (Total)", val: `RWF ${payout.breakdown.bookingAmount.toLocaleString()}`, isNet: false },
+                  { label: "Platform Service Fee (10%)", val: `- RWF ${payout.breakdown.platformFee.toLocaleString()}`, isNeg: true },
+                  { label: "Cleaning Fee", val: `+ RWF ${payout.breakdown.cleaningFee.toLocaleString()}`, isPos: true },
+                  { label: "Taxes & Levies", val: `- RWF ${payout.breakdown.taxes.toLocaleString()}`, isNeg: true }
+                ].map((row, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-4 border-b border-zinc-100 last:border-0">
+                    <span className="font-medium text-[#777]">{row.label}</span>
+                    <span className={`font-bold ${row.isNeg ? 'text-red-500' : row.isPos ? 'text-emerald-600' : 'text-zinc-900'}`}>{row.val}</span>
+                  </div>
+                ))}
+                <div className="pt-6 flex justify-between items-center">
+                  <span className="text-sm font-extrabold text-zinc-900 uppercase tracking-widest">Host Net Earnings</span>
+                  <span className="text-2xl font-extrabold text-[#005244]">RWF {hostNetEarnings.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payout Details */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2.5 pb-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#0F3D2E]" />
+                <h4 className="text-[11px] font-extrabold text-zinc-500 uppercase tracking-[0.1em]">Payout Details</h4>
+              </div>
+              <div className="bg-zinc-50/50 rounded-xl border border-zinc-100 overflow-hidden divide-y divide-zinc-100">
+                <div className="p-5 flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Payout Method</span>
+                  <span className="text-sm font-extrabold text-zinc-900">{payout.method}</span>
+                </div>
+                <div className="p-5 flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Account Details</span>
+                  <span className="text-sm font-extrabold text-zinc-900">{payout.accountDetails}</span>
+                </div>
+                <div className="p-5 flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Transaction ID</span>
+                  <span className="text-sm font-extrabold text-zinc-900 truncate max-w-[120px]">{payout.transactionId || '---'}</span>
+                </div>
+                <div className="p-5 flex justify-between items-center bg-zinc-50">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Processed On</span>
+                  <span className="text-sm font-extrabold text-zinc-900">{payout.processingDate || 'Pending'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Footer */}
+          <div className="pt-6">
+             <button className="w-full bg-[#005244] text-white py-4 rounded-lg font-bold text-sm shadow-xl shadow-emerald-900/10 hover:bg-[#004236] transition-all flex items-center justify-center gap-3">
+                <Download size={18} />
+                Download Invoice
+             </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

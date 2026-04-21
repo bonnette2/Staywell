@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, User as UserIcon, LogOut, Heart, Calendar, CreditCard, Bell, Shield, MessageSquare, Home } from "lucide-react";
+import { 
+  Menu, X, User as UserIcon, LogOut, Settings, MessageSquare, 
+  Home, Heart, Calendar, CreditCard
+} from "lucide-react";
 import NextImage from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +15,6 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isPreloading, setIsPreloading] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const pathname = usePathname();
 
@@ -21,240 +23,320 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
-
-    // Handle preloader
-    if (!sessionStorage.getItem("preloader-shown")) {
-      setIsPreloading(true);
-    }
-    const handlePreloaderFinished = () => setIsPreloading(false);
-    window.addEventListener("preloader-finished", handlePreloaderFinished);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("preloader-finished", handlePreloaderFinished);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
+  // Close menus on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsProfileOpen(false);
+  }, [pathname]);
+
+  // Route & Styling Logic
+  const isAccountPage = pathname?.startsWith("/account") || pathname?.startsWith("/messages");
+  
+  // Refined blur background blend
+  const headerBgClass = isAccountPage 
+    ? "bg-[#0a0f1b] border-b border-white/5 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.3)]" 
+    : isScrolled 
+      ? "bg-[#0a0f1b]/80 backdrop-blur-[20px]" 
+      : "bg-transparent";
+
+  const textColorClass = "text-white";
+
+  // Navigation Data
+  const primaryNavLinks = [
     { name: "Home", href: "/" },
-    { name: "About us", href: "/about" },
+    { name: "About Us", href: "/about" },
     { name: "Properties", href: "/properties" },
-    { name: "Contact us", href: "/contact" },
+    { name: "Contact Us", href: "/contact" },
   ];
 
   const userMenuItems = [
-    { name: "Profile", href: "/account/profile", icon: UserIcon },
-    { name: "Messages", href: "/messages", icon: MessageSquare },
     { name: "Bookings", href: "/account/bookings", icon: Calendar },
     { name: "Wishlist", href: "/account/wishlist", icon: Heart },
-    { name: "Payment Methods", href: "/account/payments", icon: CreditCard },
-    { name: "Notifications", href: "/account/settings", icon: Bell },
-    { name: "Security", href: "/account/settings", icon: Shield },
+    { name: "Messages", href: "/messages", icon: MessageSquare, badge: 3 },
+    { name: "Payments", href: "/account/payments", icon: CreditCard },
   ];
 
-  const isHome = pathname === "/";
-  const showSolidNav = isScrolled || !isHome;
-
-  if (isPreloading) return null;
+  const accountMenuItems = [
+    { name: "Account / Profile", href: "/account/profile", icon: UserIcon },
+    { name: "Settings", href: "/account/settings", icon: Settings },
+  ];
 
   return (
-    <header
-      className="fixed top-0 left-0 w-full z-[9999] transition-all duration-300 pt-4 px-4 md:pt-6 md:px-6 pointer-events-none"
-    >
-      <div className="max-w-5xl mx-auto flex items-center justify-between transition-all duration-300 pointer-events-auto bg-[#1c2533]/50 backdrop-blur-lg shadow-2xl rounded-full border border-white/5 py-3.5 px-6 md:px-8">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <Home size={20} className="text-white" />
-          <span className="text-xl font-medium tracking-wide text-white transition-colors">
-            StayWell
-          </span>
-        </Link>
+    <header className={`fixed top-0 left-0 w-full z-[9999] transition-all duration-300 ease-in-out ${headerBgClass}`}>
+      <div className="w-full px-6 md:px-12 grid grid-cols-2 lg:grid-cols-3 items-center min-h-[72px] xl:min-h-[80px]">
+        
+        {/* ================= LEFT COLUMN: Logo ================= */}
+        <div className="flex items-center justify-start">
+          <Link href="/" className="flex items-center gap-3 z-50 group">
+            <div className="flex items-center justify-center transition-transform group-hover:scale-110">
+               <Home size={24} className="text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">
+              StayWell
+            </span>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href || (link.name === "Home" && pathname?.includes("/guest/home"));
-            return (
+        {/* ================= CENTER COLUMN: Primary Navigation ================= */}
+        <div className="hidden lg:flex items-center justify-center">
+          <nav className="flex items-center gap-7 pt-1">
+            {primaryNavLinks.map((link) => {
+              const isActive = pathname === link.href || pathname === `${link.href}/` || (link.href === "/" && (pathname === "" || pathname?.includes("/home")));
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`relative text-sm font-bold tracking-wide transition-opacity py-2 ${
+                    isActive ? "text-white opacity-100" : "text-white opacity-80 hover:opacity-100"
+                  }`}
+                >
+                  {link.name}
+                  {isActive && (
+                    <motion.div 
+                      layoutId="primary-nav-indicator"
+                      className="absolute -bottom-1.5 left-0 right-0 h-[4px] rounded-sm bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* ================= RIGHT COLUMN: User Actions ================= */}
+        <div className="flex items-center justify-end z-50">
+          {!isAuthenticated ? (
+            // GUEST ACTIONS
+            <div className="hidden lg:flex items-center gap-4">
               <Link
-                key={link.name}
-                href={link.href}
-                className={`text-sm tracking-wide transition-all group flex flex-col items-center hover:opacity-100 ${
-                  isActive ? 'text-white font-semibold' : 'text-white/70 hover:opacity-100'
+                href="/login"
+                className={`text-sm font-bold transition-all px-4 py-2 rounded-full hover:bg-white/10 ${
+                  "text-white/80 hover:text-white"
                 }`}
               >
-                {link.name}
-                {isActive && (
-                  <motion.div 
-                    layoutId="underline"
-                    className="h-0.5 w-full bg-white rounded-full mt-1.5"
-                  />
-                )}
+                Sign In
               </Link>
-            );
-          })}
-        </nav>
-
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          {isAuthenticated ? (
-            <>
-              {/* Messages icon */}
               <Link
-                href="/messages"
-                className="relative p-2 rounded-full transition-all hover:scale-105 text-white/90 hover:text-white hover:bg-white/10"
+                href="/signup"
+                className="text-sm font-bold bg-primary text-white px-6 py-2.5 rounded-full hover:bg-[#064e3b] transition-all shadow-md"
               >
-                <MessageSquare size={22} />
-                {/* Unread badge */}
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow">3</span>
+                Sign Up
               </Link>
-
-              <div className="relative">
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-3 p-1 pr-3 rounded-full border border-transparent transition-all hover:shadow-md hover:bg-white/5"
+            </div>
+          ) : (
+            // AUTHENTICATED ACTIONS
+            <div className="hidden lg:block relative">
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className={`flex items-center gap-3 p-1.5 pl-3.5 pr-1.5 rounded-full border transition-all hover:shadow-md ${
+                  "border-white/20 bg-white/10 hover:bg-white/20 backdrop-blur-sm"
+                }`}
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
-                  {user?.avatar ? (
-                    <NextImage src={user.avatar} alt={user.name} width={32} height={32} className="object-cover" />
-                  ) : (
-                    <UserIcon size={16} className="text-white" />
-                  )}
+                <Menu size={18} className={textColorClass} />
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-bold ml-1 hidden md:block ${textColorClass}`}>
+                    {user?.name.split(" ")[0]}
+                  </span>
+                  <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center border-2 border-white/20 bg-white/20`}>
+                    {user?.avatar ? (
+                      <NextImage src={user.avatar} alt={user.name} width={32} height={32} className="object-cover" />
+                    ) : (
+                      <UserIcon size={16} className={textColorClass} />
+                    )}
+                  </div>
                 </div>
-                <span className="text-sm font-medium text-white">
-                  {user?.name.split(" ")[0]}
-                </span>
               </button>
 
+              {/* Desktop Profile Dropdown */}
               <AnimatePresence>
                 {isProfileOpen && (
                   <>
                     <div className="fixed inset-0 z-[-1]" onClick={() => setIsProfileOpen(false)} />
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-64 bg-white rounded-3xl shadow-2xl border border-zinc-100 py-3 z-50 overflow-hidden"
+                      exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute right-0 mt-3 w-[260px] bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-zinc-100 py-2 z-50 overflow-hidden"
                     >
-                      <div className="px-5 py-3 mb-2 border-b border-zinc-50">
-                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Signed in as</p>
-                        <p className="text-sm font-bold text-zinc-800 truncate">{user?.email}</p>
+                      <div className="py-1">
+                        {userMenuItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className="flex items-center justify-between px-5 py-2.5 text-sm font-bold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-all"
+                            onClick={() => setIsProfileOpen(false)}
+                          >
+                            <div className="flex items-center gap-3">
+                              <item.icon size={18} className="text-zinc-400" />
+                              {item.name}
+                            </div>
+                            {item.badge && (
+                              <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        ))}
                       </div>
-                      
-                      {userMenuItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setIsProfileOpen(false)}
-                          className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-zinc-600 hover:text-primary hover:bg-zinc-50 transition-all"
+
+                      <div className="h-px bg-zinc-100 my-1 mx-4" />
+
+                      <div className="py-1">
+                        {accountMenuItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className="flex items-center gap-3 px-5 py-2.5 text-sm font-bold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-all"
+                            onClick={() => setIsProfileOpen(false)}
+                          >
+                            <item.icon size={18} className="text-zinc-400" />
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+
+                      <div className="h-px bg-zinc-100 my-1 mx-4" />
+
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            logout();
+                            setIsProfileOpen(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-all"
                         >
-                          <item.icon size={18} />
-                          {item.name}
-                        </Link>
-                      ))}
-                      
-                      <div className="h-px bg-zinc-50 my-2" />
-                      
-                      <button
-                        onClick={() => {
-                          logout();
-                          setIsProfileOpen(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all"
-                      >
-                        <LogOut size={18} />
-                        Logout
-                      </button>
+                          <LogOut size={18} />
+                          Logout
+                        </button>
+                      </div>
                     </motion.div>
                   </>
                 )}
               </AnimatePresence>
             </div>
-          </>
-        ) : (
-          <>
-              <Link
-                href="/login"
-                className="text-sm font-medium transition-colors hover:opacity-80 text-white"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                className="text-sm font-medium bg-primary text-white px-5 py-2.5 rounded-full hover:bg-[#064e3b] transition-colors shadow-sm"
-              >
-                Sign Up
-              </Link>
-            </>
           )}
+
+          {/* ================= MOBILE HAMBURGER TOGGLE ================= */}
+          <button
+            className={`lg:hidden flex items-center p-2 rounded-full transition-colors ml-4 hover:bg-white/10 text-white ${textColorClass}`}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={26} className="text-white" /> : <Menu size={26} />}
+          </button>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden p-2 transition-colors text-white"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-2 pointer-events-auto mt-2 rounded-2xl border border-zinc-100">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className="text-base font-medium text-foreground hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
+        {/* ================= MOBILE FULLSCREEN MENU ================= */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: "100%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "100%" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="fixed inset-0 top-0 left-0 w-full h-screen bg-[#0a0f1b] z-40 flex flex-col pt-24 px-6 overflow-y-auto pb-10"
             >
-              {link.name}
-            </Link>
-          ))}
-          <div className="h-px bg-slate-100 my-2" />
-          {isAuthenticated ? (
-            <>
-              {userMenuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-base font-medium text-foreground hover:text-primary transition-colors flex items-center gap-3"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <item.icon size={18} />
-                  {item.name}
-                </Link>
-              ))}
-              <button
-                onClick={() => {
-                  logout();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-base font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-3"
-              >
-                <LogOut size={18} />
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="text-base font-medium text-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                className="text-base font-medium text-primary hover:text-[#064e3b] transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Sign Up
-              </Link>
-            </>
+              <div className="flex flex-col gap-8 max-w-sm mx-auto w-full">
+                <div>
+                  <h3 className="text-[11px] font-black text-white/40 uppercase tracking-widest mb-4">Menu</h3>
+                  <div className="flex flex-col gap-1">
+                    {primaryNavLinks.map((link) => (
+                      <Link
+                        key={link.name}
+                        href={link.href}
+                        className="text-2xl font-bold text-white hover:text-primary transition-colors py-2"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="h-px bg-white/10" />
+                
+                {isAuthenticated ? (
+                  <>
+                    <div>
+                      <h3 className="text-[11px] font-black text-white/40 uppercase tracking-widest mb-4">Activities</h3>
+                      <div className="flex flex-col gap-1">
+                        {userMenuItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className="text-lg font-bold text-white/90 hover:text-white transition-colors flex items-center justify-between py-2"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <div className="flex items-center gap-3">
+                              <item.icon size={20} className="text-white/60" />
+                              {item.name}
+                            </div>
+                            {item.badge && (
+                              <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="h-px bg-white/10" />
+
+                    <div>
+                        <h3 className="text-[11px] font-black text-white/40 uppercase tracking-widest mb-4">Settings</h3>
+                        <div className="flex flex-col gap-1">
+                          {accountMenuItems.map((item) => (
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              className="text-lg font-bold text-white/90 hover:text-white transition-colors flex items-center gap-3 py-2"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              <item.icon size={20} className="text-white/60" />
+                              {item.name}
+                            </Link>
+                          ))}
+                          <button
+                            onClick={() => {
+                              logout();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="text-lg font-bold text-red-400 hover:text-red-300 transition-colors flex items-center gap-3 py-2 mt-2 w-full text-left"
+                          >
+                            <LogOut size={20} />
+                            Logout
+                          </button>
+                        </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col gap-4 mt-2">
+                    <Link
+                      href="/login"
+                      className="w-full py-4 text-center text-lg font-bold text-[#1c2533] bg-white rounded-2xl"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="w-full py-4 text-center text-lg font-bold text-white bg-primary rounded-2xl"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
-        </div>
-      )}
+        </AnimatePresence>
+      </div>
     </header>
   );
 }

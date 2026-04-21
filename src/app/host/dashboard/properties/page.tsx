@@ -121,13 +121,8 @@ export default function PropertiesDashboardPage() {
   });
 
   return (
-    <div className="flex min-h-screen bg-zinc-50/50 text-zinc-900 font-sans">
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen w-full">
-        {/* Properties Content */}
-        <main className="p-8 lg:p-10 flex-1">
-          {/* Header Block */}
+    <div className="flex flex-col gap-4">
+        {/* Header Block */}
           <div className="mb-4 flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <div>
@@ -139,7 +134,7 @@ export default function PropertiesDashboardPage() {
                   setPropertyToEdit(null);
                   setIsModalOpen(true);
                 }}
-                className="flex items-center gap-2 bg-white border border-[#013A37] px-4 py-2 rounded-lg text-sm font-bold text-[#013A37] shadow-sm hover:bg-zinc-50 transition-colors"
+                className="flex items-center gap-2 bg-white border border-[#002521] px-4 py-2 rounded-lg text-sm font-bold text-[#002521] shadow-sm hover:bg-zinc-50 transition-colors"
               >
                 <span className="text-lg leading-none mb-0.5">+</span> Add property
               </button>
@@ -152,7 +147,8 @@ export default function PropertiesDashboardPage() {
               <input 
                 type="text" 
                 placeholder="Search" 
-                className="w-full bg-white border border-zinc-200 rounded-lg py-2 pl-10 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#003129]/10"
+                suppressHydrationWarning
+                className="w-full bg-white border border-zinc-200 rounded-lg py-2 pl-10 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-[#002521]/10"
               />
             </div>
             
@@ -161,7 +157,7 @@ export default function PropertiesDashboardPage() {
                 <select 
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="w-full bg-white border border-zinc-200 px-4 py-2 rounded-lg text-sm font-semibold text-zinc-700 appearance-none outline-none focus:ring-1 focus:ring-[#003129]/30 cursor-pointer"
+                  className="w-full bg-white border border-zinc-200 px-4 py-2 rounded-lg text-sm font-semibold text-zinc-700 appearance-none outline-none focus:ring-1 focus:ring-[#002521]/30 cursor-pointer"
                 >
                   <option value="All">All status</option>
                   <option value="Available">Available</option>
@@ -174,7 +170,7 @@ export default function PropertiesDashboardPage() {
                 <select 
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
-                  className="w-full bg-white border border-zinc-200 px-4 py-2 rounded-lg text-sm font-semibold text-zinc-700 appearance-none outline-none focus:ring-1 focus:ring-[#003129]/30 cursor-pointer"
+                  className="w-full bg-white border border-zinc-200 px-4 py-2 rounded-lg text-sm font-semibold text-zinc-700 appearance-none outline-none focus:ring-1 focus:ring-[#002521]/30 cursor-pointer"
                 >
                   <option value="All">All types</option>
                   <option value="Villa">Villa</option>
@@ -184,7 +180,7 @@ export default function PropertiesDashboardPage() {
                 <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
               </div>
               <div className="relative w-[140px]">
-                <select className="w-full bg-white border border-zinc-200 px-4 py-2 rounded-lg text-sm font-semibold text-zinc-700 appearance-none outline-none focus:ring-1 focus:ring-[#003129]/30 cursor-pointer">
+                <select className="w-full bg-white border border-zinc-200 px-4 py-2 rounded-lg text-sm font-semibold text-zinc-700 appearance-none outline-none focus:ring-1 focus:ring-[#002521]/30 cursor-pointer">
                   <option value="Newest">Newest</option>
                   <option value="Oldest">Oldest</option>
                 </select>
@@ -207,12 +203,12 @@ export default function PropertiesDashboardPage() {
               </div>
             </div>
           </div>
-          </div>
-
-          {/* Properties Content Area */}
-          {selectedProperties.length > 0 && viewMode === "list" && (
-            <div className="mb-4 bg-[#003129]/5 border border-[#003129]/20 p-4 rounded-xl flex items-center justify-between">
-              <span className="text-sm font-bold text-[#003129]">{selectedProperties.length} items selected</span>
+        </div>
+          
+        {/* Properties Content Area */}
+        {selectedProperties.length > 0 && viewMode === "list" && (
+            <div className="mb-4 bg-[#002521]/5 border border-[#002521]/20 p-4 rounded-xl flex items-center justify-between">
+              <span className="text-sm font-bold text-[#002521]">{selectedProperties.length} items selected</span>
               <div className="flex gap-2">
                 <button className="px-4 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-semibold text-zinc-700 hover:bg-zinc-50">Change Status</button>
                 <button className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100">Delete Selected</button>
@@ -229,6 +225,7 @@ export default function PropertiesDashboardPage() {
                       src={property.image} 
                       alt={property.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -273,7 +270,7 @@ export default function PropertiesDashboardPage() {
                     <div className="mt-auto pt-5 border-t border-zinc-100 flex flex-col gap-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[#003129] font-black text-[13px] tracking-tight">RWF {property.price}</p>
+                          <p className="text-[#002521] font-black text-[13px] tracking-tight">RWF {property.price}</p>
                           <p className="text-[10px] font-bold text-zinc-400">Per night</p>
                         </div>
                          <div className={`px-2 py-1 rounded text-[10px] font-bold ${
@@ -287,7 +284,7 @@ export default function PropertiesDashboardPage() {
                         <Link href={`/properties/${property.id}`} className="flex-1 py-1.5 flex justify-center items-center gap-1.5 bg-zinc-50 rounded text-[11px] font-bold text-zinc-700 hover:bg-zinc-100 transition-colors">
                           <Eye size={12} /> View
                         </Link>
-                        <button onClick={() => { setPropertyToEdit(property); setIsModalOpen(true); }} className="flex-1 py-1.5 flex justify-center items-center gap-1.5 bg-[#013A37]/5 text-[#013A37] rounded text-[11px] font-bold hover:bg-[#013A37]/10 transition-colors">
+                        <button onClick={() => { setPropertyToEdit(property); setIsModalOpen(true); }} className="flex-1 py-1.5 flex justify-center items-center gap-1.5 bg-[#002521]/5 text-[#002521] rounded text-[11px] font-bold hover:bg-[#002521]/10 transition-colors">
                           <Edit size={12} /> Edit
                         </button>
                         <button onClick={() => setItemToDelete(property.id)} className="flex-1 py-1.5 flex justify-center items-center gap-1.5 bg-red-50 text-red-600 rounded text-[11px] font-bold hover:bg-red-100 transition-colors">
@@ -311,9 +308,9 @@ export default function PropertiesDashboardPage() {
                           if (selectedProperties.length === filteredProperties.length) setSelectedProperties([]);
                             else setSelectedProperties(filteredProperties.map(p => p.id));
                           }}
-                          className="text-zinc-400 hover:text-[#003129] transition-colors"
+                          className="text-zinc-400 hover:text-[#002521] transition-colors"
                         >
-                          {selectedProperties.length === filteredProperties.length && filteredProperties.length > 0 ? <CheckSquare size={18} className="text-[#003129]"/> : <Square size={18}/>}
+                          {selectedProperties.length === filteredProperties.length && filteredProperties.length > 0 ? <CheckSquare size={18} className="text-[#002521]"/> : <Square size={18}/>}
                         </button>
                       </th>
                       <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">Property</th>
@@ -325,7 +322,7 @@ export default function PropertiesDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-zinc-100">
                     {filteredProperties.map((property) => (
-                      <tr key={property.id} className={`hover:bg-zinc-50/50 transition-colors ${selectedProperties.includes(property.id) ? 'bg-[#003129]/5 hover:bg-[#003129]/10' : ''}`}>
+                      <tr key={property.id} className={`hover:bg-zinc-50/50 transition-colors ${selectedProperties.includes(property.id) ? 'bg-[#002521]/5 hover:bg-[#002521]/10' : ''}`}>
                         <td className="p-4">
                           <button 
                             onClick={() => {
@@ -335,15 +332,15 @@ export default function PropertiesDashboardPage() {
                                 setSelectedProperties(prev => [...prev, property.id]);
                               }
                             }}
-                            className="text-zinc-400 hover:text-[#003129] transition-colors"
+                            className="text-zinc-400 hover:text-[#002521] transition-colors"
                           >
-                            {selectedProperties.includes(property.id) ? <CheckSquare size={18} className="text-[#003129]"/> : <Square size={18}/>}
+                            {selectedProperties.includes(property.id) ? <CheckSquare size={18} className="text-[#002521]"/> : <Square size={18}/>}
                           </button>
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-lg overflow-hidden relative shrink-0">
-                               <Image src={property.image} alt={property.title} fill className="object-cover" />
+                             <Image src={property.image} alt={property.title} fill sizes="48px" className="object-cover" />
                             </div>
                             <div>
                                <p className="font-bold text-zinc-900 text-sm whitespace-nowrap">{property.title}</p>
@@ -352,7 +349,7 @@ export default function PropertiesDashboardPage() {
                           </div>
                         </td>
                         <td className="p-4 whitespace-nowrap">
-                          <p className="text-sm font-black text-[#003129]">RWF {property.price}</p>
+                          <p className="text-sm font-black text-[#002521]">RWF {property.price}</p>
                           <p className="text-[10px] font-bold text-zinc-400">/ night</p>
                         </td>
                         <td className="p-4 whitespace-nowrap">
@@ -373,7 +370,7 @@ export default function PropertiesDashboardPage() {
                                 setPropertyToEdit(property);
                                 setIsModalOpen(true);
                               }}
-                              className="p-2 bg-white border border-zinc-200 rounded-lg text-zinc-600 hover:bg-[#013A37] hover:text-white transition-all"
+                              className="p-2 bg-white border border-zinc-200 rounded-lg text-zinc-600 hover:bg-[#002521] hover:text-white transition-all"
                             >
                               <Edit size={14} />
                             </button>
@@ -401,13 +398,11 @@ export default function PropertiesDashboardPage() {
             <p className="text-sm font-semibold text-zinc-700">Showing 1 to 4 of 247 results</p>
             <div className="flex gap-2">
               <button className="px-4 py-1.5 border border-zinc-200 rounded text-sm font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors">Previous</button>
-              <button className="w-8 h-[30px] rounded bg-[#003129] text-white text-sm font-bold flex items-center justify-center">1</button>
+              <button className="w-8 h-[30px] rounded bg-[#002521] text-white text-sm font-bold flex items-center justify-center">1</button>
               <button className="w-8 h-[30px] rounded border border-zinc-200 text-zinc-600 text-sm font-bold flex items-center justify-center hover:bg-zinc-50 transition-colors">2</button>
               <button className="px-4 py-1.5 border border-zinc-200 rounded text-sm font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors">Next</button>
             </div>
           </div>
-        </main>
-      </div>
 
       <AddPropertyModal 
         isOpen={isModalOpen} 

@@ -102,7 +102,7 @@ export default function Testimonials() {
               >
                 <Image src={test.image} fill className="object-cover" alt="Property background" />
                 {/* Darker bottom gradient for text contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1b2b34]/95 via-[#1b2b34]/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#002521]/95 via-[#002521]/40 to-transparent"></div>
                 
                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 text-white">
                   <p className="text-sm md:text-[15px] font-medium mb-6 leading-relaxed max-w-md relative font-sans text-white/90">

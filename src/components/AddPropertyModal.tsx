@@ -110,7 +110,7 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
           className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]"
         >
           {/* Header */}
-          <div className="bg-[#003129] px-8 py-5 flex items-center justify-between shrink-0">
+          <div className="bg-[#002521] px-8 py-5 flex items-center justify-between shrink-0">
             <h2 className="text-white text-lg font-bold tracking-tight">Add a Property</h2>
             <button 
               onClick={onClose}
@@ -128,14 +128,14 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`text-sm font-bold transition-colors relative pb-4 -mb-[17px] ${
-                    activeTab === tab ? "text-[#003129]" : "text-zinc-900"
+                    activeTab === tab ? "text-[#002521]" : "text-zinc-900"
                   }`}
                 >
                   {tab}
                   {activeTab === tab && (
                     <motion.div 
                       layoutId="tabIndicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#003129]"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#002521]"
                     />
                   )}
                 </button>
@@ -148,12 +148,12 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 px-4">
                   <div>
                     <label className="block text-sm font-semibold text-zinc-900 mb-2">Property Title</label>
-                    <input name="title" value={formData.title} onChange={handleChange} type="text" placeholder="e.g Luxury Villa with pool" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                    <input name="title" value={formData.title} onChange={handleChange} type="text" placeholder="e.g Luxury Villa with pool" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-zinc-900 mb-2">Property Type</label>
-                      <select name="type" value={formData.type} onChange={handleChange} className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129] bg-white appearance-none">
+                      <select name="type" value={formData.type} onChange={handleChange} className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521] bg-white appearance-none">
                         <option value="">Select type</option>
                         <option value="villa">Villa</option>
                         <option value="apartment">Apartment</option>
@@ -162,23 +162,23 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-zinc-900 mb-2">Guest Capacity</label>
-                      <input name="guests" value={formData.guests} onChange={handleChange} type="number" min="1" placeholder="e.g 4" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                      <input name="guests" value={formData.guests} onChange={handleChange} type="number" min="1" placeholder="e.g 4" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-zinc-900 mb-2">Location</label>
-                      <input name="location" value={formData.location} onChange={handleChange} type="text" placeholder="e.g Kigali, Rwanda" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                      <input name="location" value={formData.location} onChange={handleChange} type="text" placeholder="e.g Kigali, Rwanda" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-zinc-900 mb-2">Area (sqt / Ares)</label>
-                      <input name="area" value={formData.area} onChange={handleChange} type="number" min="1" placeholder="e.g 2500" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                      <input name="area" value={formData.area} onChange={handleChange} type="number" min="1" placeholder="e.g 2500" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-zinc-900 mb-2">Bedrooms</label>
-                      <input name="bedrooms" value={formData.bedrooms} onChange={handleChange} type="number" min="1" placeholder="e.g 3" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                      <input name="bedrooms" value={formData.bedrooms} onChange={handleChange} type="number" min="1" placeholder="e.g 3" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-zinc-900 mb-2">Bathrooms</label>
-                      <input name="bathrooms" value={formData.bathrooms} onChange={handleChange} type="number" min="1" placeholder="e.g 2" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                      <input name="bathrooms" value={formData.bathrooms} onChange={handleChange} type="number" min="1" placeholder="e.g 2" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                     </div>
                   </div>
                 </motion.div>
@@ -202,7 +202,7 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                     <Upload size={24} className="mb-4 text-zinc-900" />
                     <p className="text-sm font-bold text-zinc-900 mb-1">Upload pictures</p>
                     <p className="text-xs font-bold text-zinc-500 mb-6">Supported formats: Jpg, PNG (Max 10MB)</p>
-                    <button className="bg-[#003129] text-white px-10 py-2.5 rounded-lg text-sm font-bold transition-all hover:bg-[#00221c] pointer-events-none">
+                    <button className="bg-[#002521] text-white px-10 py-2.5 rounded-lg text-sm font-bold transition-all hover:bg-[#00221c] pointer-events-none">
                       Select Files
                     </button>
                   </div>
@@ -213,11 +213,11 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                         <div 
                           key={i} 
                           onClick={() => setCoverImageIndex(i)}
-                          className={`relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer group transition-all ${coverImageIndex === i ? 'border-[#013A37] ring-2 ring-[#013A37]/20' : 'border-zinc-200'}`}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer group transition-all ${coverImageIndex === i ? 'border-[#002521] ring-2 ring-[#002521]/20' : 'border-zinc-200'}`}
                         >
                           <Image src={src} alt="preview" fill className="object-cover" />
                           {coverImageIndex === i && (
-                            <div className="absolute top-2 left-2 bg-[#013A37] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">
+                            <div className="absolute top-2 left-2 bg-[#002521] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">
                               Cover
                             </div>
                           )}
@@ -242,8 +242,8 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                   <h3 className="text-sm font-bold text-zinc-900 mb-6">Select all amenities found at your property</h3>
                   <div className="grid grid-cols-3 gap-4">
                     {AMENITIES.map((amenity, i) => (
-                      <label key={i} className="flex items-center gap-3 border border-zinc-300 rounded-lg p-3 cursor-pointer hover:border-[#003129] transition-colors">
-                        <input type="checkbox" className="w-4 h-4 rounded border-zinc-300 text-[#003129] focus:ring-[#003129]" />
+                      <label key={i} className="flex items-center gap-3 border border-zinc-300 rounded-lg p-3 cursor-pointer hover:border-[#002521] transition-colors">
+                        <input type="checkbox" className="w-4 h-4 rounded border-zinc-300 text-[#002521] focus:ring-[#002521]" />
                         <span className="text-sm font-bold text-zinc-900">{amenity}</span>
                       </label>
                     ))}
@@ -261,28 +261,28 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">P</div>
                            <span className="text-sm font-semibold text-zinc-900">Paypal</span>
                          </div>
-                         <input type="checkbox" checked={selectedPayments.includes('paypal')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#003129] focus:ring-[#003129]" />
+                         <input type="checkbox" checked={selectedPayments.includes('paypal')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#002521] focus:ring-[#002521]" />
                       </div>
                       <div className="flex items-center justify-between cursor-pointer" onClick={() => togglePayment('apple')}>
                          <div className="flex items-center gap-3">
                            <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center text-white text-[10px] font-bold">A</div>
                            <span className="text-sm font-semibold text-zinc-900">Apple pay</span>
                          </div>
-                         <input type="checkbox" checked={selectedPayments.includes('apple')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#003129] focus:ring-[#003129]" />
+                         <input type="checkbox" checked={selectedPayments.includes('apple')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#002521] focus:ring-[#002521]" />
                       </div>
                       <div className="flex items-center justify-between cursor-pointer" onClick={() => togglePayment('card')}>
                          <div className="flex items-center gap-3">
                            <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold bg-gradient-to-r from-red-500 to-orange-400">C</div>
                            <span className="text-sm font-semibold text-zinc-900">Credit card</span>
                          </div>
-                         <input type="checkbox" checked={selectedPayments.includes('card')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#003129] focus:ring-[#003129]" />
+                         <input type="checkbox" checked={selectedPayments.includes('card')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#002521] focus:ring-[#002521]" />
                       </div>
                       <div className="flex items-center justify-between cursor-pointer" onClick={() => togglePayment('momo')}>
                          <div className="flex items-center gap-3">
                            <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">M</div>
                            <span className="text-sm font-semibold text-zinc-900">Mobile Money</span>
                          </div>
-                         <input type="checkbox" checked={selectedPayments.includes('momo')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#003129] focus:ring-[#003129]" />
+                         <input type="checkbox" checked={selectedPayments.includes('momo')} readOnly className="w-5 h-5 rounded border-zinc-300 text-[#002521] focus:ring-[#002521]" />
                       </div>
                     </div>
                   </div>
@@ -292,11 +292,11 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                     <div className="space-y-6">
                       <div>
                         <label className="block text-sm font-semibold text-zinc-900 mb-2">Price per Night</label>
-                        <input name="price" value={formData.price} onChange={handleChange} type="number" min="0" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" placeholder="e.g 150000" />
+                        <input name="price" value={formData.price} onChange={handleChange} type="number" min="0" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" placeholder="e.g 150000" />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-zinc-900 mb-2">Cleaning Fee</label>
-                        <input name="cleaningFee" value={formData.cleaningFee} onChange={handleChange} type="number" min="0" placeholder="e.g 5000" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#003129]" />
+                        <input name="cleaningFee" value={formData.cleaningFee} onChange={handleChange} type="number" min="0" placeholder="e.g 5000" className="w-full border border-zinc-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#002521]" />
                       </div>
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export default function AddPropertyModal({ isOpen, onClose, propertyToEdit, onSa
                 cancel
               </button>
               <button 
-                className="px-10 py-2.5 rounded-lg text-sm font-bold text-white bg-[#003129] hover:bg-[#00221c] transition-colors"
+                className="px-10 py-2.5 rounded-lg text-sm font-bold text-white bg-[#002521] hover:bg-[#00221c] transition-colors"
                 onClick={() => {
                   if (activeTab === "Payment & Pricing") {
                     if (onSave) {

@@ -242,7 +242,7 @@ export default function ChatWindow({
             disabled={!input.trim()}
             className={`p-3 rounded-2xl transition-all shadow-md ${
               input.trim()
-                ? "bg-primary text-white hover:bg-[#064e3b] shadow-primary/20"
+                ? "bg-primary text-white hover:bg-[#001a17] shadow-primary/20"
                 : "bg-zinc-100 text-zinc-400 cursor-not-allowed shadow-none"
             }`}
           >

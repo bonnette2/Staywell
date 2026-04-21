@@ -15,6 +15,7 @@ import {
   Search,
   Bell
 } from "lucide-react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 
 export default function HostDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -32,43 +33,47 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
   ];
 
   return (
-    <div className="flex min-h-screen bg-zinc-50/30 text-zinc-900 font-sans">
+    <div className="flex min-h-screen bg-[#F4F7F6] text-zinc-900 font-sans">
       {/* Sidebar */}
-      <aside className="w-[200px] xl:w-[240px] bg-[#013A37] text-white flex flex-col shrink-0 min-h-screen sticky top-0">
-        <div className="p-8 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-            <Home size={20} />
+      <aside className="w-[200px] xl:w-[240px] bg-[#002521] text-white flex flex-col shrink-0 h-screen sticky top-0 overflow-y-auto no-scrollbar shadow-[4px_0_24px_rgba(0,0,0,0.1)] border-r border-white/5">
+        <div className="p-8 flex items-center gap-4 shrink-0">
+          <div className="flex items-center justify-center transition-transform hover:scale-110">
+            <Home size={24} className="text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight">StayWell</span>
+          <span className="text-xl font-bold tracking-tight text-white">StayWell</span>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
+        <nav className="flex-1 space-y-1 mt-4">
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== "/host/dashboard" && pathname?.startsWith(link.href));
             return (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium text-sm ${
-                  isActive 
-                    ? "bg-white/10 text-white" 
-                    : "text-white/50 hover:text-white/90 hover:bg-white/5"
+                className={`relative flex items-center gap-4 px-8 py-4 transition-all font-medium text-sm group ${
+                  isActive ? "text-white" : "text-white/40 hover:text-white/80 hover:bg-white/5"
                 }`}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-emerald-400 rounded-r-md" />
+                  <motion.div 
+                    layoutId="sidebar-active-indicator"
+                    className="absolute inset-y-0 left-0 right-0 bg-black/10 border-l-[4px] border-white rounded-none" 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  />
                 )}
-                <link.icon size={18} />
-                {link.name}
+                <link.icon size={20} className={`relative z-10 shrink-0 ${isActive ? "text-white" : "text-white/40 group-hover:text-white/80"}`} />
+                <span className="relative z-10 tracking-wide">{link.name}</span>
               </Link>
             )
           })}
         </nav>
 
-        <div className="p-8 border-t border-white/5">
+        <div className="p-6 mt-auto border-t border-white/5 shrink-0">
           <button 
             onClick={logout}
-            className="flex items-center gap-3 text-white/50 hover:text-white transition-all font-medium text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-medium text-sm"
           >
             <LogOut size={18} />
             Logout
@@ -85,7 +90,8 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
             <input 
               type="text" 
               placeholder="Search properties, bookings, or guests..." 
-              className="w-full bg-zinc-50 border border-zinc-100 rounded-lg py-2.5 pl-11 pr-4 text-sm outline-none focus:ring-1 focus:ring-[#0F3D2E]/10 transition-all placeholder:text-zinc-400"
+              suppressHydrationWarning
+              className="w-full bg-zinc-50 border border-zinc-100 rounded-lg py-2.5 pl-11 pr-4 text-sm outline-none focus:ring-1 focus:ring-[#002521]/10 transition-all placeholder:text-zinc-400"
             />
           </div>
           

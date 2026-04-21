@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, UserRole } from "@/context/AuthContext";
-import { User, Mail, Phone, Users, Home, ArrowRight, ShieldCheck, RefreshCw } from "lucide-react";
+import { User, Mail, Phone, Users, Home, ArrowRight, ShieldCheck, RefreshCw, Check } from "lucide-react";
 import { validateName, validateEmail, validatePhone, sanitizeInput } from "@/utils/validation";
 import Preloader from "@/components/Preloader";
 
@@ -29,6 +29,7 @@ export default function SignupPage() {
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
   
   // 2FA State
   const [showOTP, setShowOTP] = useState(false);
@@ -112,7 +113,7 @@ export default function SignupPage() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-screen w-full lg:overflow-hidden">
       <Preloader />
       {/* Background */}
       <div className="absolute inset-0 z-0">
@@ -130,7 +131,7 @@ export default function SignupPage() {
       <div className="relative z-10 flex min-h-screen">
         {/* ====== LEFT: FORM PANEL ====== */}
         <motion.div
-          className="w-full lg:w-[50%] flex flex-col justify-center px-8 sm:px-14 xl:px-20 py-12 min-h-screen"
+          className="w-full lg:w-[50%] flex flex-col justify-center px-8 sm:px-14 xl:px-20 py-12 h-screen overflow-y-auto no-scrollbar relative z-20"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
@@ -234,8 +235,28 @@ export default function SignupPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-md border border-white/25 bg-white/10 flex items-center justify-center shrink-0 cursor-pointer hover:border-emerald-500 transition-colors" />
-                      <span className="text-sm text-white/55 font-medium">Remember me</span>
+                      <button 
+                        type="button"
+                        onClick={() => setRememberMe(!rememberMe)}
+                        className="flex items-center gap-3 group/check cursor-pointer outline-none"
+                      >
+                        <div className={`w-5 h-5 rounded-md border transition-all duration-300 flex items-center justify-center shrink-0 ${
+                          rememberMe ? "bg-white border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" : "border-white/25 bg-white/10 group-hover/check:border-white/40"
+                        }`}>
+                          {rememberMe && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ type: "spring", damping: 12, stiffness: 300 }}
+                            >
+                              <Check size={14} className="text-[#002521] stroke-[4]" />
+                            </motion.div>
+                          )}
+                        </div>
+                        <span className={`text-sm font-medium transition-colors duration-300 ${rememberMe ? "text-white" : "text-white/55 group-hover/check:text-white/80"}`}>
+                          Remember me
+                        </span>
+                      </button>
                     </div>
 
                     <button
@@ -243,10 +264,10 @@ export default function SignupPage() {
                       disabled={isLoading}
                       className="relative w-full py-4 rounded-2xl font-bold text-white text-sm overflow-hidden group flex items-center justify-center gap-2"
                     >
-                      <div className="absolute inset-0 bg-[#065f46]" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#047857] to-[#065f46] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <span className="relative z-10">{isLoading ? "Sending code..." : "Create Account"}</span>
-                      {!isLoading && <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />}
+                    <div className="absolute inset-0 bg-[#002521]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#002521] to-[#001a17] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="relative z-10">{isLoading ? "Sending code..." : "Create Account"}</span>
+                    {!isLoading && <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />}
                     </button>
                   </form>
                 </motion.div>
@@ -295,7 +316,7 @@ export default function SignupPage() {
                         disabled={isLoading}
                         className="relative w-full py-5 rounded-2xl font-bold text-white text-sm overflow-hidden group flex items-center justify-center gap-2"
                       >
-                        <div className="absolute inset-0 bg-[#065f46]" />
+                        <div className="absolute inset-0 bg-[#002521]" />
                         <span className="relative z-10">{isLoading ? "Verifying..." : "Verify & Sign Up"}</span>
                       </button>
 
@@ -338,7 +359,7 @@ export default function SignupPage() {
 
         {/* ====== RIGHT: HERO PANEL ====== */}
         <motion.div
-          className="hidden lg:flex w-[50%] flex-col justify-end px-16 xl:px-20 pb-20"
+          className="hidden lg:flex w-[50%] flex-col justify-center px-16 xl:px-20 fixed right-0 top-0 h-screen z-10 pt-20"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}

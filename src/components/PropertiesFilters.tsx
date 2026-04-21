@@ -14,14 +14,21 @@ const prices = [
   { label: "Medium ($100k - $500k)", value: "medium" },
   { label: "High ($500k+)", value: "high" }
 ];
-
 export default function PropertiesFilters({ 
   activeCategory, 
   onCategoryChange,
   activeLocation,
   onLocationChange,
   activePrice,
-  onPriceChange
+  onPriceChange,
+  isParkingOnly,
+  onParkingToggle,
+  isPoolOnly,
+  onPoolToggle,
+  isWifiOnly,
+  onWifiToggle,
+  isNewestFirst,
+  onNewestToggle
 }: { 
   activeCategory: string; 
   onCategoryChange: (cat: string) => void;
@@ -29,6 +36,14 @@ export default function PropertiesFilters({
   onLocationChange: (loc: string) => void;
   activePrice: string;
   onPriceChange: (price: string) => void;
+  isParkingOnly: boolean;
+  onParkingToggle: () => void;
+  isPoolOnly: boolean;
+  onPoolToggle: () => void;
+  isWifiOnly: boolean;
+  onWifiToggle: () => void;
+  isNewestFirst: boolean;
+  onNewestToggle: () => void;
 }) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -44,7 +59,7 @@ export default function PropertiesFilters({
   }, []);
 
   return (
-    <section className="py-12 bg-[#fafafc] sticky top-[72px] z-30 transition-all border-b border-zinc-100/50 backdrop-blur-sm">
+    <section className="py-12 bg-[#fafafc] sticky top-[72px] z-[50] transition-all border-b border-zinc-100/50 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-6" ref={dropdownRef}>
         
         {/* Main Categories */}
@@ -154,16 +169,36 @@ export default function PropertiesFilters({
             </AnimatePresence>
           </div>
 
-          <button className="px-6 py-2.5 rounded-full bg-white border border-zinc-200 text-sm font-semibold text-zinc-600 hover:border-primary/40 hover:text-primary transition-all shadow-sm">
+          <button 
+            onClick={onParkingToggle}
+            className={`px-6 py-2.5 rounded-full border transition-all shadow-sm text-sm font-semibold ${
+              isParkingOnly ? "border-primary text-primary bg-primary/5" : "bg-white border-zinc-200 text-zinc-600 hover:border-primary/40 hover:text-primary"
+            }`}
+          >
             Parking
           </button>
-          <button className="px-6 py-2.5 rounded-full bg-white border border-zinc-200 text-sm font-semibold text-zinc-600 hover:border-primary/40 hover:text-primary transition-all shadow-sm">
+          <button 
+            onClick={onPoolToggle}
+            className={`px-6 py-2.5 rounded-full border transition-all shadow-sm text-sm font-semibold ${
+              isPoolOnly ? "border-primary text-primary bg-primary/5" : "bg-white border-zinc-200 text-zinc-600 hover:border-primary/40 hover:text-primary"
+            }`}
+          >
             pool
           </button>
-          <button className="px-6 py-2.5 rounded-full bg-white border border-zinc-200 text-sm font-semibold text-zinc-600 hover:border-primary/40 hover:text-primary transition-all shadow-sm">
+          <button 
+            onClick={onWifiToggle}
+            className={`px-6 py-2.5 rounded-full border transition-all shadow-sm text-sm font-semibold ${
+              isWifiOnly ? "border-primary text-primary bg-primary/5" : "bg-white border-zinc-200 text-zinc-600 hover:border-primary/40 hover:text-primary"
+            }`}
+          >
             Wi-fi
           </button>
-          <button className="px-6 py-2.5 rounded-full bg-white border border-zinc-200 text-sm font-semibold text-zinc-600 hover:border-primary/40 hover:text-primary transition-all shadow-sm">
+          <button 
+            onClick={onNewestToggle}
+            className={`px-6 py-2.5 rounded-full border transition-all shadow-sm text-sm font-semibold ${
+              isNewestFirst ? "border-primary text-primary bg-primary/5" : "bg-white border-zinc-200 text-zinc-600 hover:border-primary/40 hover:text-primary"
+            }`}
+          >
             Newest
           </button>
         </div>

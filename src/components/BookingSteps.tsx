@@ -64,7 +64,7 @@ export default function BookingSteps() {
             
             {/* Top Badge */}
             <motion.div variants={slideUp} className="absolute top-[5%] left-[55%] -translate-x-1/2 px-5 py-2.5 bg-white text-sm font-semibold rounded-full shadow-xl flex items-center gap-3 z-30">
-              <div className="flex items-center justify-center w-6 h-6 bg-black text-white rounded-full"><ArrowRight size={14} /></div>
+              <div className="flex items-center justify-center w-6 h-6 bg-[#002521] text-white rounded-full"><ArrowRight size={14} /></div>
               Verified Stays
             </motion.div>
 
@@ -90,7 +90,7 @@ export default function BookingSteps() {
             
             {/* Middle Badge - Placed statically outside the image so it spans boundaries */}
             <motion.div variants={slideUp} className="absolute top-[40%] right-[35%] px-5 py-2.5 bg-white text-sm font-semibold rounded-full shadow-xl flex items-center gap-3 z-40">
-              <div className="flex items-center justify-center w-6 h-6 bg-black text-white rounded-full"><ArrowRight size={14} /></div>
+              <div className="flex items-center justify-center w-6 h-6 bg-[#002521] text-white rounded-full"><ArrowRight size={14} /></div>
               Trusted Partners
             </motion.div>
 
@@ -106,7 +106,7 @@ export default function BookingSteps() {
             
             {/* Bottom Badge attached closely to Bottom Left image */}
             <motion.div variants={slideUp} className="absolute bottom-[8%] left-[20%] px-5 py-2.5 bg-white text-sm font-semibold rounded-full shadow-xl flex items-center gap-3 z-50">
-              <div className="flex items-center justify-center w-6 h-6 bg-black text-white rounded-full"><ArrowRight size={14} /></div>
+              <div className="flex items-center justify-center w-6 h-6 bg-[#002521] text-white rounded-full"><ArrowRight size={14} /></div>
               Premium Quality
             </motion.div>
 
@@ -143,7 +143,7 @@ export default function BookingSteps() {
               >
                 <div className="flex-shrink-0">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-inner ${
-                    index === 0 ? "bg-[#171717] text-white" : "bg-zinc-100 text-zinc-500"
+                    index === 0 ? "bg-[#002521] text-white" : "bg-zinc-100 text-zinc-500"
                   }`}>
                     {step.step}
                   </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Check } from "lucide-react";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -29,6 +29,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleInputChange = (field: "email" | "password", value: string) => {
     const sanitized = sanitizeInput(value);
@@ -229,11 +230,29 @@ export default function LoginPage() {
               </motion.div>
 
               <motion.div variants={itemVariants} className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-md border border-white/25 bg-white/10 flex items-center justify-center shrink-0" />
-                  <span className="text-sm text-white/55 font-medium">Remember me</span>
-                </div>
-                <Link href="#" className="text-sm text-white/50 hover:text-white font-bold transition-colors underline underline-offset-4 decoration-white/20">
+                <button 
+                  type="button"
+                  onClick={() => setRememberMe(!rememberMe)}
+                  className="flex items-center gap-3 group/check cursor-pointer outline-none"
+                >
+                  <div className={`w-5 h-5 rounded-md border transition-all duration-300 flex items-center justify-center shrink-0 ${
+                    rememberMe ? "bg-white border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" : "border-white/25 bg-white/10 group-hover/check:border-white/40"
+                  }`}>
+                    {rememberMe && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", damping: 12, stiffness: 300 }}
+                      >
+                        <Check size={14} className="text-[#002521] stroke-[4]" />
+                      </motion.div>
+                    )}
+                  </div>
+                  <span className={`text-sm font-medium transition-colors duration-300 ${rememberMe ? "text-white" : "text-white/55 group-hover/check:text-white/80"}`}>
+                    Remember me
+                  </span>
+                </button>
+                <Link href="/forgot-password" title="Recover your password" className="text-sm text-white/50 hover:text-white font-bold transition-colors underline underline-offset-4 decoration-white/20">
                   Forgot password
                 </Link>
               </motion.div>
@@ -244,8 +263,8 @@ export default function LoginPage() {
                   disabled={isLoading}
                   className="relative w-full py-4 rounded-2xl font-bold text-white text-sm overflow-hidden group flex items-center justify-center gap-2"
                 >
-                  <div className="absolute inset-0 bg-[#065f46]" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#047857] to-[#065f46] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-[#002521]" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#002521] to-[#001a17] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/15 to-transparent" />
                   <span className="relative z-10">{isLoading ? "Logging in..." : "Login"}</span>
                   {!isLoading && <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />}

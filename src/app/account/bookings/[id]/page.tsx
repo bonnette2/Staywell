@@ -240,7 +240,7 @@ export default function BookingDetailsPage({ params }: { params: Promise<{ id: s
               </div>
               <Link 
                 href="/messages"
-                className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold text-sm hover:bg-[#064e3b] transition-all shadow-lg shadow-primary/10"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold text-sm hover:bg-[#001a17] transition-all shadow-lg shadow-primary/10"
               >
                 <MessageSquare size={18} />
                 Message Host
