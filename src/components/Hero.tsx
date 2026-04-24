@@ -31,12 +31,11 @@ export default function Hero() {
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
         style={{ 
           backgroundImage: `url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop')`,
-          backgroundColor: '#002521'
         }}
       >
         {/* Cinematic Overlay */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#002521] via-transparent to-black/20"></div>
+        <div className="absolute inset-0 bg-black/45"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20"></div>
       </div>
 
       {/* Content */}
@@ -64,7 +63,7 @@ export default function Hero() {
         <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-5">
           <Link
             href="/properties"
-            className="px-8 py-4 bg-[#002521] text-white font-bold rounded-full hover:bg-[#001a17] transition-all shadow-[0_8px_30px_rgb(0,37,33,0.3)] hover:shadow-[0_8px_30px_rgb(0,37,33,0.5)] flex items-center gap-2 group min-w-[180px] justify-center"
+            className="px-8 py-4 bg-white text-zinc-900 font-bold rounded-full hover:bg-zinc-100 transition-all shadow-lg flex items-center gap-2 group min-w-[180px] justify-center"
           >
             Get Started 
             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
