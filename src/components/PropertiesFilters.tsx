@@ -59,7 +59,7 @@ export default function PropertiesFilters({
   }, []);
 
   return (
-    <section className="py-12 bg-[#fafafc] sticky top-[72px] z-[50] transition-all border-b border-zinc-100/50 backdrop-blur-sm">
+    <section className="py-12 bg-[#fafafc] transition-all border-b border-zinc-100/50">
       <div className="max-w-7xl mx-auto px-6" ref={dropdownRef}>
         
         {/* Main Categories */}
